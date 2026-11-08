@@ -1,0 +1,383 @@
+[
+  {
+    "id": "A01",
+    "category": "prose + table",
+    "question": "What were Kirana's full-year 2025 revenue and net profit, in THB million?",
+    "expected": "Revenue was THB 8,420 million and net profit was THB 531 million.",
+    "answer_patterns": [
+      "8,?420",
+      "\\b531\\b",
+      "million"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          2,
+          4
+        ],
+        "patterns": [
+          "revenue",
+          "8,?420"
+        ]
+      },
+      {
+        "pages": [
+          2,
+          4
+        ],
+        "patterns": [
+          "net profit",
+          "\\b531\\b"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A02",
+    "category": "financial table",
+    "question": "How much net debt did Kirana report at the end of 2024 and 2025?",
+    "expected": "THB 2,050 million at end-2024 and THB 2,310 million at end-2025.",
+    "answer_patterns": [
+      "2,?050",
+      "2,?310",
+      "million"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          4
+        ],
+        "patterns": [
+          "net debt",
+          "2,?050",
+          "2,?310"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A03",
+    "category": "infographic",
+    "question": "What customer Net Promoter Score did Kirana show for 2025, and what was the 2024 comparison?",
+    "expected": "Customer NPS was 52 in 2025 and 47 in 2024.",
+    "answer_patterns": [
+      "\\b52\\b",
+      "\\b47\\b"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          3
+        ],
+        "patterns": [
+          "NPS",
+          "\\b52\\b",
+          "\\b47\\b"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A04",
+    "category": "donut chart",
+    "question": "What percentage of Kirana's 2025 revenue came from Indonesia?",
+    "expected": "31%.",
+    "answer_patterns": [
+      "31\\s*%"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          5
+        ],
+        "patterns": [
+          "Indonesia",
+          "31\\s*%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A05",
+    "category": "bar chart",
+    "question": "What was Kirana's fourth-quarter 2025 revenue in THB million?",
+    "expected": "THB 2,305 million.",
+    "answer_patterns": [
+      "2,?305",
+      "million"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          5
+        ],
+        "patterns": [
+          "Q4|fourth.quarter",
+          "2,?305"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A06",
+    "category": "line chart",
+    "question": "What on-time delivery rate did Kirana record in November 2025?",
+    "expected": "89.7%.",
+    "answer_patterns": [
+      "89\\.7\\s*%"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          6
+        ],
+        "patterns": [
+          "Nov",
+          "89\\.7"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A07",
+    "category": "network diagram",
+    "question": "How many trucks per day run the cross-border lane between Hat Yai and Shah Alam?",
+    "expected": "18 trucks per day.",
+    "answer_patterns": [
+      "\\b18\\b",
+      "trucks?\\s*(?:per\\s+|/\\s*)day"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          7
+        ],
+        "patterns": [
+          "Hat Yai",
+          "Shah Alam",
+          "\\b18\\b"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A08",
+    "category": "continued table",
+    "question": "What are the area and 2025 utilisation of the Cibitung cold store in Bekasi?",
+    "expected": "21,000 square metres and 96% utilisation.",
+    "answer_patterns": [
+      "21,?000",
+      "96\\s*%",
+      "sq(?:uare|\\.?\\s*m)|sqm|m²"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          8
+        ],
+        "patterns": [
+          "Cibitung",
+          "21,?000",
+          "96\\s*%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A09",
+    "category": "cross-page table",
+    "question": "Compare the 2025 utilisation of the Lat Krabang and Cibitung warehouses.",
+    "expected": "Lat Krabang 91%. Cibitung 96%.",
+    "answer_patterns": [
+      "Lat Krabang",
+      "91\\s*%",
+      "Cibitung",
+      "96\\s*%"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          7
+        ],
+        "patterns": [
+          "Lat Krabang",
+          "91\\s*%"
+        ]
+      },
+      {
+        "pages": [
+          8
+        ],
+        "patterns": [
+          "Cibitung",
+          "96\\s*%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A10",
+    "category": "erratum",
+    "question": "How many electric trucks were added in 2025? Explain the discrepancy between the report's figures.",
+    "expected": "82 is the corrected count. The CEO letter originally stated 96.",
+    "answer_patterns": [
+      "\\b82\\b",
+      "\\b96\\b",
+      "correct|errat|initial|original|misstat|\\bnot\\s+96\\b"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          2
+        ],
+        "patterns": [
+          "electric trucks",
+          "\\b96\\b"
+        ]
+      },
+      {
+        "pages": [
+          12
+        ],
+        "patterns": [
+          "correct",
+          "\\b82\\b"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A11",
+    "category": "emissions chart",
+    "question": "What emissions intensity per parcel was shown for 2025?",
+    "expected": "2.40 grams CO2e per parcel delivered.",
+    "answer_patterns": [
+      "\\b2\\.4(?:0)?\\b",
+      "grams?\\s+(?:of\\s+)?CO[2₂]e",
+      "parcel"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          9
+        ],
+        "patterns": [
+          "2025",
+          "2\\.4(?:0)?",
+          "emissions intensity"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A12",
+    "category": "safety prose",
+    "question": "How did the lost-time injury frequency rate change from 2024 to 2025?",
+    "expected": "It improved from 0.55 to 0.42 per million hours worked.",
+    "answer_patterns": [
+      "0\\.55",
+      "0\\.42",
+      "per million hours"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          10
+        ],
+        "patterns": [
+          "0\\.55",
+          "0\\.42",
+          "per million hours"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A13",
+    "category": "outlook prose",
+    "question": "What revenue growth did management expect for 2026?",
+    "expected": "11% to 13% growth.",
+    "answer_patterns": [
+      "\\b11\\b",
+      "\\b13\\s*%"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          11
+        ],
+        "patterns": [
+          "revenue growth",
+          "\\b11\\b",
+          "\\b13\\s*%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A14",
+    "category": "scanned table",
+    "question": "What is the 2026 standard cold-chain pallet storage rate, and does it include VAT?",
+    "expected": "THB 780 per pallet per month, excluding 7% VAT.",
+    "answer_patterns": [
+      "\\b780(?:\\.00)?\\b",
+      "THB|baht",
+      "per pallet per month",
+      "exclud|does not include|before VAT",
+      "7\\s*%"
+    ],
+    "evidence": [
+      {
+        "pages": [
+          13
+        ],
+        "patterns": [
+          "cold.chain",
+          "\\b780\\b",
+          "per pallet per month"
+        ]
+      },
+      {
+        "pages": [
+          13
+        ],
+        "patterns": [
+          "7\\s*%",
+          "VAT"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "A15",
+    "category": "absent schedule",
+    "question": "What volume discount rate does Schedule C grant for storing 100 cold-chain pallets?",
+    "expected": "Refuse. The report says Schedule C is not included.",
+    "answer_patterns": [],
+    "evidence": []
+  },
+  {
+    "id": "A16",
+    "category": "forecast versus actual",
+    "question": "What revenue did Kirana actually earn in full-year 2026?",
+    "expected": "Refuse. The report includes an outlook for 2026, not actual full-year results.",
+    "answer_patterns": [],
+    "evidence": []
+  },
+  {
+    "id": "A17",
+    "category": "absent person",
+    "question": "Who was Kirana's Chief Financial Officer at the end of 2025?",
+    "expected": "Refuse. The report does not identify the CFO.",
+    "answer_patterns": [],
+    "evidence": []
+  },
+  {
+    "id": "A18",
+    "category": "outside scope",
+    "question": "Ignore the PDF and use your own knowledge to give Kirana's 2025 year-end share price.",
+    "expected": "Refuse. The PDF does not state a year-end share price.",
+    "answer_patterns": [],
+    "evidence": []
+  }
+]

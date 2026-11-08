@@ -1,0 +1,3422 @@
+{
+  "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+  "document_sha256": "109f0c113b5d8184ff720b87d69d3d9c7c236cf3be4aff5cd02b50addea43605",
+  "models": {
+    "chat": "google/gemini-2.5-flash-lite",
+    "embeddings": "openai/text-embedding-3-small",
+    "vision": "google/gemini-3.1-flash-lite"
+  },
+  "metrics": {
+    "retrieval": {
+      "keyword@7": {
+        "complete_pages": 14,
+        "complete_evidence": 13,
+        "cases": 14,
+        "evidence_groups_hit": 17,
+        "evidence_groups": 18
+      },
+      "hybrid@7": {
+        "complete_pages": 13,
+        "complete_evidence": 12,
+        "cases": 14,
+        "evidence_groups_hit": 16,
+        "evidence_groups": 18
+      },
+      "hybrid_with_graph": {
+        "complete_pages": 14,
+        "complete_evidence": 14,
+        "cases": 14,
+        "evidence_groups_hit": 18,
+        "evidence_groups": 18
+      },
+      "agent_context": {
+        "complete_pages": 14,
+        "complete_evidence": 14,
+        "cases": 14,
+        "evidence_groups_hit": 18,
+        "evidence_groups": 18
+      }
+    },
+    "answers": {
+      "correct": 13,
+      "grounded_correct": 13,
+      "cases": 14,
+      "correct_refusals": 4,
+      "unanswerable_cases": 4,
+      "provider_errors": 0
+    },
+    "runtime": {
+      "seconds_wall": 74.07,
+      "seconds_batch_embeddings": 2.39,
+      "seconds_per_question_median": 2.865
+    },
+    "api": {
+      "requests": {
+        "chat": 41,
+        "embed": 3
+      },
+      "reported_cost_usd": 0.00565099,
+      "responses_with_cost": 44
+    }
+  },
+  "cases": [
+    {
+      "id": "A01",
+      "category": "prose + table",
+      "question": "What were Kirana's full-year 2025 revenue and net profit, in THB million?",
+      "expected": "Revenue was THB 8,420 million and net profit was THB 531 million.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p002-003",
+            "p004-007",
+            "p004-010",
+            "p005-005",
+            "p005-006",
+            "p006-002",
+            "p003-004"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "hybrid@7": {
+          "ids": [
+            "p002-003",
+            "p004-007",
+            "p004-005",
+            "p005-005",
+            "p003-004",
+            "p005-006",
+            "p003-003"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p002-003",
+            "p004-007",
+            "p004-005",
+            "p005-005",
+            "p003-004",
+            "p005-006",
+            "p003-003"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "agent_context": {
+          "ids": [
+            "p002-003",
+            "p004-007",
+            "p004-005",
+            "p005-005",
+            "p003-004",
+            "p005-006",
+            "p003-003"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Kirana's full-year 2025 revenue was THB 8,420 million.",
+            "citations": [
+              {
+                "id": "p002-003",
+                "page": 2,
+                "label": "Letter from the Chief Executive Officer",
+                "method": "pdf_text",
+                "box": [
+                  57.0,
+                  110.1,
+                  526.2,
+                  149.6
+                ],
+                "quote": "Letter from the Chief Executive Officer | 2025 was a year of disciplined growth for Kirana. Revenue rose 10.0% to THB 8,420 million and net profit reached THB 531 million. We expanded our cold-chain capacity in Indonesia, where demand from grocery and pharmaceutical customers continues to outpace supply."
+              },
+              {
+                "id": "p003-004",
+                "page": 3,
+                "label": "Key Performance Indicators / Revenue",
+                "method": "openrouter_vision",
+                "box": [
+                  51.0,
+                  107.5,
+                  544.3,
+                  414.1
+                ],
+                "quote": "2025 at a glance | Key Performance Indicators / Revenue | THB 8,420 million, +10.0%\nVisible labels: THB 8,420 m | Revenue (+10.0%)\nVisible header: Annual report performance metrics"
+              }
+            ]
+          },
+          {
+            "statement": "Kirana's full-year 2025 net profit was THB 531 million.",
+            "citations": [
+              {
+                "id": "p002-003",
+                "page": 2,
+                "label": "Letter from the Chief Executive Officer",
+                "method": "pdf_text",
+                "box": [
+                  57.0,
+                  110.1,
+                  526.2,
+                  149.6
+                ],
+                "quote": "Letter from the Chief Executive Officer | 2025 was a year of disciplined growth for Kirana. Revenue rose 10.0% to THB 8,420 million and net profit reached THB 531 million. We expanded our cold-chain capacity in Indonesia, where demand from grocery and pharmaceutical customers continues to outpace supply."
+              },
+              {
+                "id": "p004-007",
+                "page": 4,
+                "label": "Table 1. Five-line financial summary / Net profit",
+                "method": "pdf_layout",
+                "box": [
+                  67.4,
+                  224.4,
+                  527.9,
+                  233.9
+                ],
+                "quote": "Financial review | Table 1. Five-line financial summary / Net profit | THB million: Net profit | 2023: 412 | 2024: 468 | 2025: 531"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p002-003",
+              "p004-007",
+              "p004-005",
+              "p005-005",
+              "p003-004",
+              "p005-006",
+              "p003-003"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p002-003",
+          "p004-007",
+          "p004-005",
+          "p005-005",
+          "p003-004",
+          "p005-006",
+          "p003-003"
+        ],
+        "evidence_ids": [
+          "p002-003",
+          "p004-007",
+          "p004-005",
+          "p005-005",
+          "p003-004",
+          "p005-006",
+          "p003-003"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 3.02,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00024698,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A02",
+      "category": "financial table",
+      "question": "How much net debt did Kirana report at the end of 2024 and 2025?",
+      "expected": "THB 2,050 million at end-2024 and THB 2,310 million at end-2025.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p004-009",
+            "p004-007",
+            "p004-011",
+            "p002-003",
+            "p010-005",
+            "p010-006",
+            "p001-001"
+          ],
+          "pages": [
+            1,
+            2,
+            4,
+            10
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p004-009",
+            "p004-007",
+            "p002-003",
+            "p004-011",
+            "p001-001",
+            "p001-003",
+            "p003-008"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p004-009",
+            "p004-007",
+            "p002-003",
+            "p004-011",
+            "p001-001",
+            "p001-003",
+            "p003-008"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p004-009",
+            "p004-007",
+            "p002-003",
+            "p004-011",
+            "p001-001",
+            "p001-003",
+            "p003-008"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Kirana reported net debt of THB 2,050 million at the end of 2024 and THB 2,310 million at the end of 2025.",
+            "citations": [
+              {
+                "id": "p004-009",
+                "page": 4,
+                "label": "Table 1. Five-line financial summary / Net debt (31 Dec)",
+                "method": "pdf_layout",
+                "box": [
+                  67.4,
+                  264.4,
+                  527.9,
+                  273.9
+                ],
+                "quote": "Financial review | Table 1. Five-line financial summary / Net debt (31 Dec) | THB million: Net debt (31 Dec) | 2023: 1,880 | 2024: 2,050 | 2025: 2,310"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p004-009",
+              "p004-007",
+              "p002-003",
+              "p004-011",
+              "p001-001",
+              "p001-003",
+              "p003-008"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p004-009",
+          "p004-007",
+          "p002-003",
+          "p004-011",
+          "p001-001",
+          "p001-003",
+          "p003-008"
+        ],
+        "evidence_ids": [
+          "p004-009",
+          "p004-007",
+          "p002-003",
+          "p004-011",
+          "p001-001",
+          "p001-003",
+          "p003-008"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.71,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.0002959,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A03",
+      "category": "infographic",
+      "question": "What customer Net Promoter Score did Kirana show for 2025, and what was the 2024 comparison?",
+      "expected": "Customer NPS was 52 in 2025 and 47 in 2024.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p012-004",
+            "p002-003",
+            "p003-008",
+            "p004-007",
+            "p004-009",
+            "p001-001",
+            "p011-003"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4,
+            11,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p012-004",
+            "p002-003",
+            "p003-008",
+            "p003-003",
+            "p004-007",
+            "p001-001",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p012-004",
+            "p002-003",
+            "p003-008",
+            "p003-003",
+            "p004-007",
+            "p001-001",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p012-004",
+            "p002-003",
+            "p003-008",
+            "p003-003",
+            "p004-007",
+            "p001-001",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Kirana's customer Net Promoter Score (NPS) for 2025 was 52, a comparison to 47 in 2024.",
+            "citations": [
+              {
+                "id": "p003-008",
+                "page": 3,
+                "label": "Key Performance Indicators / Customer NPS",
+                "method": "openrouter_vision",
+                "box": [
+                  51.0,
+                  107.5,
+                  544.3,
+                  414.1
+                ],
+                "quote": "2025 at a glance | Key Performance Indicators / Customer NPS | 52, 2024: 47\nVisible labels: 52 | Customer NPS (2024: 47)\nVisible header: Annual report performance metrics"
+              },
+              {
+                "id": "p003-003",
+                "page": 3,
+                "label": "Figure region 1",
+                "method": "local_ocr",
+                "box": [
+                  51.0,
+                  107.5,
+                  544.3,
+                  414.1
+                ],
+                "quote": "Customer NPS (2024: 47)"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p012-004",
+              "p002-003",
+              "p003-008",
+              "p003-003",
+              "p004-007",
+              "p001-001",
+              "p001-003"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p012-004",
+          "p002-003",
+          "p003-008",
+          "p003-003",
+          "p004-007",
+          "p001-001",
+          "p001-003"
+        ],
+        "evidence_ids": [
+          "p012-004",
+          "p002-003",
+          "p003-008",
+          "p003-003",
+          "p004-007",
+          "p001-001",
+          "p001-003"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 4.66,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.0003099,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A04",
+      "category": "donut chart",
+      "question": "What percentage of Kirana's 2025 revenue came from Indonesia?",
+      "expected": "31%.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p005-011",
+            "p002-003",
+            "p001-003",
+            "p001-001",
+            "p005-009",
+            "p005-003",
+            "p005-005"
+          ],
+          "pages": [
+            1,
+            2,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p005-011",
+            "p002-003",
+            "p001-003",
+            "p005-009",
+            "p001-001",
+            "p005-003",
+            "p004-002"
+          ],
+          "pages": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p005-011",
+            "p002-003",
+            "p001-003",
+            "p005-009",
+            "p001-001",
+            "p005-003",
+            "p004-002"
+          ],
+          "pages": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p005-011",
+            "p002-003",
+            "p001-003",
+            "p005-009",
+            "p001-001",
+            "p005-003",
+            "p004-002"
+          ],
+          "pages": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Indonesia's revenue share was 31% in 2025.",
+            "citations": [
+              {
+                "id": "p005-011",
+                "page": 5,
+                "label": "Revenue by country, 2025 / Indonesia",
+                "method": "openrouter_vision",
+                "box": [
+                  127.6,
+                  382.1,
+                  467.7,
+                  639.7
+                ],
+                "quote": "Revenue analysis | Revenue by country, 2025 / Indonesia | Indonesia revenue share is 31% in 2025\nVisible labels: Indonesia | 31%\nVisible header: Figure 2. Revenue by country, 2025 (share of total)"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p005-011",
+              "p002-003",
+              "p001-003",
+              "p005-009",
+              "p001-001",
+              "p005-003",
+              "p004-002"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p005-011",
+          "p002-003",
+          "p001-003",
+          "p005-009",
+          "p001-001",
+          "p005-003",
+          "p004-002"
+        ],
+        "evidence_ids": [
+          "p005-011",
+          "p002-003",
+          "p001-003",
+          "p005-009",
+          "p001-001",
+          "p005-003",
+          "p004-002"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.45,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.000257,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A05",
+      "category": "bar chart",
+      "question": "What was Kirana's fourth-quarter 2025 revenue in THB million?",
+      "expected": "THB 2,305 million.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p005-008",
+            "p002-003",
+            "p005-005",
+            "p003-004",
+            "p004-004",
+            "p011-009",
+            "p005-002"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5,
+            11
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p005-008",
+            "p002-003",
+            "p005-004",
+            "p004-004",
+            "p003-004",
+            "p003-003",
+            "p005-002"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p005-008",
+            "p002-003",
+            "p005-004",
+            "p004-004",
+            "p003-004",
+            "p003-003",
+            "p005-002"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p005-008",
+            "p002-003",
+            "p005-004",
+            "p004-004",
+            "p003-004",
+            "p003-003",
+            "p005-002"
+          ],
+          "pages": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Kirana's fourth-quarter 2025 revenue was 2,305 THB million.",
+            "citations": [
+              {
+                "id": "p005-008",
+                "page": 5,
+                "label": "Revenue by quarter, 2025 / Q4 Revenue",
+                "method": "openrouter_vision",
+                "box": [
+                  85.0,
+                  122.0,
+                  510.2,
+                  353.1
+                ],
+                "quote": "Revenue analysis | Revenue by quarter, 2025 / Q4 Revenue | 2,305 THB million in Q4 2025\nVisible labels: Q4 | 2,305\nVisible header: Figure 1. Revenue by quarter, 2025 (THB million)"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p005-008",
+              "p002-003",
+              "p005-004",
+              "p004-004",
+              "p003-004",
+              "p003-003",
+              "p005-002"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p005-008",
+          "p002-003",
+          "p005-004",
+          "p004-004",
+          "p003-004",
+          "p003-003",
+          "p005-002"
+        ],
+        "evidence_ids": [
+          "p005-008",
+          "p002-003",
+          "p005-004",
+          "p004-004",
+          "p003-004",
+          "p003-003",
+          "p005-002"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.52,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.0002915,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A06",
+      "category": "line chart",
+      "question": "What on-time delivery rate did Kirana record in November 2025?",
+      "expected": "89.7%.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p006-006",
+            "p012-002",
+            "p006-005",
+            "p006-002",
+            "p001-003",
+            "p001-001",
+            "p013-001"
+          ],
+          "pages": [
+            1,
+            6,
+            12,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p006-006",
+            "p012-002",
+            "p006-002",
+            "p006-005",
+            "p001-003",
+            "p002-003",
+            "p001-001"
+          ],
+          "pages": [
+            1,
+            2,
+            6,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p006-006",
+            "p012-002",
+            "p006-002",
+            "p006-005",
+            "p001-003",
+            "p002-003",
+            "p001-001"
+          ],
+          "pages": [
+            1,
+            2,
+            6,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p006-006",
+            "p012-002",
+            "p006-002",
+            "p006-005",
+            "p001-003",
+            "p002-003",
+            "p001-001"
+          ],
+          "pages": [
+            1,
+            2,
+            6,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Kirana recorded an on-time delivery rate of 89.7% in November 2025.",
+            "citations": [
+              {
+                "id": "p006-006",
+                "page": 6,
+                "label": "On-time delivery by month, 2025 / On-time delivery percentage by month",
+                "method": "openrouter_vision",
+                "box": [
+                  63.8,
+                  122.0,
+                  531.5,
+                  362.0
+                ],
+                "quote": "Operations | On-time delivery by month, 2025 / On-time delivery percentage by month | January 2025: 94.1%, February 2025: 94.6%, March 2025: 95.0%, April 2025: 94.8%, May 2025: 95.3%, June 2025: 95.6%, July 2025: 95.1%, August 2025: 95.4%, September 2025: 94.2%, October 2025: 91.8%, November 2025: 89.7%, December 2025: 92.9%\nVisible labels: Jan | 94.1 | Feb | 94.6 | Mar | 95.0 | Apr | 94.8 | May | 95.3 | Jun | 95.6 | Jul | 95.1 | Aug | 95.4 | Sep | 94.2 | Oct | 91.8 | Nov | 89.7 | Dec | 92.9\nVisible header: Figure 5. On-time delivery by month, 2025 (%)"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p006-006",
+              "p012-002",
+              "p006-002",
+              "p006-005",
+              "p001-003",
+              "p002-003",
+              "p001-001"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p006-006",
+          "p012-002",
+          "p006-002",
+          "p006-005",
+          "p001-003",
+          "p002-003",
+          "p001-001"
+        ],
+        "evidence_ids": [
+          "p006-006",
+          "p012-002",
+          "p006-002",
+          "p006-005",
+          "p001-003",
+          "p002-003",
+          "p001-001"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.4,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00015451,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A07",
+      "category": "network diagram",
+      "question": "How many trucks per day run the cross-border lane between Hat Yai and Shah Alam?",
+      "expected": "18 trucks per day.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p007-021",
+            "p007-005",
+            "p007-018",
+            "p013-006",
+            "p008-011",
+            "p006-003",
+            "p007-012"
+          ],
+          "pages": [
+            6,
+            7,
+            8,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p007-021",
+            "p007-005",
+            "p007-018",
+            "p013-006",
+            "p006-003",
+            "p008-011",
+            "p009-003"
+          ],
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p007-021",
+            "p007-005",
+            "p007-018",
+            "p013-006",
+            "p006-003",
+            "p008-011",
+            "p009-003",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p007-021",
+            "p007-005",
+            "p007-018",
+            "p013-006",
+            "p006-003",
+            "p008-011",
+            "p009-003",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "18 trucks per day run the cross-border lane between Hat Yai and Shah Alam.",
+            "citations": [
+              {
+                "id": "p007-021",
+                "page": 7,
+                "label": "Core line-haul network / Network connection",
+                "method": "openrouter_vision",
+                "box": [
+                  85.0,
+                  221.0,
+                  510.2,
+                  491.2
+                ],
+                "quote": "Facilities and network | Core line-haul network / Network connection | Hat Yai to Shah Alam with 18 trucks/day (cross-border)\nVisible labels: Hat Yai | Shah Alam | 18 trucks/day (cross-border)\nVisible header: Figure 3. Core line-haul network, December 2025"
+              },
+              {
+                "id": "p007-018",
+                "page": 7,
+                "label": "Figure region 1",
+                "method": "local_ocr",
+                "box": [
+                  85.0,
+                  221.0,
+                  510.2,
+                  491.2
+                ],
+                "quote": "18 trucks/day(cross-border)"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p007-021",
+              "p007-005",
+              "p007-018",
+              "p013-006",
+              "p006-003",
+              "p008-011",
+              "p009-003"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p013-006",
+                "target": "p013-001",
+                "relation": "scan_transcript"
+              },
+              {
+                "source": "p013-006",
+                "target": "p013-009",
+                "relation": "figure_note"
+              },
+              {
+                "source": "p013-006",
+                "target": "p013-010",
+                "relation": "figure_note"
+              }
+            ]
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p007-021",
+          "p007-005",
+          "p007-018",
+          "p013-006",
+          "p006-003",
+          "p008-011",
+          "p009-003",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ],
+        "evidence_ids": [
+          "p007-021",
+          "p007-005",
+          "p007-018",
+          "p013-006",
+          "p006-003",
+          "p008-011",
+          "p009-003",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.39,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00020845,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A08",
+      "category": "continued table",
+      "question": "What are the area and 2025 utilisation of the Cibitung cold store in Bekasi?",
+      "expected": "21,000 square metres and 96% utilisation.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p008-001",
+            "p007-003",
+            "p007-016",
+            "p012-006",
+            "p007-002",
+            "p004-002",
+            "p007-004"
+          ],
+          "pages": [
+            4,
+            7,
+            8,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p008-001",
+            "p007-003",
+            "p007-016",
+            "p007-002",
+            "p003-007",
+            "p013-003",
+            "p008-006"
+          ],
+          "pages": [
+            3,
+            7,
+            8,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p008-001",
+            "p007-003",
+            "p007-016",
+            "p007-002",
+            "p003-007",
+            "p013-003",
+            "p008-006",
+            "p013-009",
+            "p013-010",
+            "p013-001"
+          ],
+          "pages": [
+            3,
+            7,
+            8,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p008-001",
+            "p007-003",
+            "p007-016",
+            "p007-002",
+            "p003-007",
+            "p013-003",
+            "p008-006",
+            "p013-009",
+            "p013-010",
+            "p013-001"
+          ],
+          "pages": [
+            3,
+            7,
+            8,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "The Cibitung cold store in Bekasi has an area of 21,000 sqm and a utilisation of 96% in 2025.",
+            "citations": [
+              {
+                "id": "p008-001",
+                "page": 8,
+                "label": "Table 2. Major facilities at 31 December 2025 / ID-CBT",
+                "method": "pdf_layout",
+                "box": [
+                  61.7,
+                  94.3,
+                  533.6,
+                  103.3
+                ],
+                "quote": "Facilities and network | Table 2. Major facilities at 31 December 2025 / ID-CBT | Code: ID-CBT | Location: Cibitung, Bekasi | Country: Indonesia | Type: Cold chain | Area (sqm): 21,000 | Utilisation 2025: 96% | Opened: 2019"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p008-001",
+              "p007-003",
+              "p007-016",
+              "p007-002",
+              "p003-007",
+              "p013-003",
+              "p008-006"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p013-003",
+                "target": "p013-009",
+                "relation": "figure_note"
+              },
+              {
+                "source": "p013-003",
+                "target": "p013-010",
+                "relation": "figure_note"
+              },
+              {
+                "source": "p013-003",
+                "target": "p013-001",
+                "relation": "scan_transcript"
+              }
+            ]
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p008-001",
+          "p007-003",
+          "p007-016",
+          "p007-002",
+          "p003-007",
+          "p013-003",
+          "p008-006",
+          "p013-009",
+          "p013-010",
+          "p013-001"
+        ],
+        "evidence_ids": [
+          "p008-001",
+          "p007-003",
+          "p007-016",
+          "p007-002",
+          "p003-007",
+          "p013-003",
+          "p008-006",
+          "p013-009",
+          "p013-010",
+          "p013-001"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.41,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00019606999999999998,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A09",
+      "category": "cross-page table",
+      "question": "Compare the 2025 utilisation of the Lat Krabang and Cibitung warehouses.",
+      "expected": "Lat Krabang 91%. Cibitung 96%.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p006-004",
+            "p007-019",
+            "p007-020",
+            "p007-007",
+            "p008-001",
+            "p003-007",
+            "p004-002"
+          ],
+          "pages": [
+            3,
+            4,
+            6,
+            7,
+            8
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "hybrid@7": {
+          "ids": [
+            "p006-004",
+            "p007-019",
+            "p007-007",
+            "p007-017",
+            "p007-020",
+            "p007-002",
+            "p003-007"
+          ],
+          "pages": [
+            3,
+            6,
+            7
+          ],
+          "groups": 2,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p006-004",
+            "p007-019",
+            "p007-007",
+            "p007-017",
+            "p007-020",
+            "p007-002",
+            "p003-007",
+            "p008-014"
+          ],
+          "pages": [
+            3,
+            6,
+            7,
+            8
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "agent_context": {
+          "ids": [
+            "p006-004",
+            "p007-019",
+            "p007-007",
+            "p007-017",
+            "p007-020",
+            "p007-002",
+            "p003-007",
+            "p008-014"
+          ],
+          "pages": [
+            3,
+            6,
+            7,
+            8
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "The Lat Krabang warehouse had a utilisation of 91% in 2025.",
+            "citations": [
+              {
+                "id": "p007-007",
+                "page": 7,
+                "label": "Table 2. Major facilities at 31 December 2025 / TH-LKB",
+                "method": "pdf_layout",
+                "box": [
+                  61.7,
+                  579.4,
+                  533.6,
+                  588.4
+                ],
+                "quote": "Facilities and network | Table 2. Major facilities at 31 December 2025 / TH-LKB | Code: TH-LKB | Location: Lat Krabang, Bangkok | Country: Thailand | Type: Ambient + cross-dock | Area (sqm): 62,000 | Utilisation 2025: 91% | Opened: 2011"
+              }
+            ]
+          },
+          {
+            "statement": "The Cibitung warehouse had a utilisation of 96% in 2025.",
+            "citations": [
+              {
+                "id": "p008-014",
+                "page": 8,
+                "label": "Table 2. Major facilities at 31 December 2025",
+                "method": "pdf_layout",
+                "box": [
+                  61.7,
+                  63.3,
+                  533.6,
+                  337.3
+                ],
+                "quote": "Facilities and network | Table 2. Major facilities at 31 December 2025 | Code | Location | Country | Type | Area (sqm) | Utilisation 2025 | Opened\nID-CBT | Cibitung, Bekasi | Indonesia | Cold chain | 21,000 | 96% | 2019"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p006-004",
+              "p007-019",
+              "p007-007",
+              "p007-017",
+              "p007-020",
+              "p007-002",
+              "p003-007"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p007-017",
+                "target": "p008-014",
+                "relation": "table_continues"
+              }
+            ]
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p006-004",
+          "p007-019",
+          "p007-007",
+          "p007-017",
+          "p007-020",
+          "p007-002",
+          "p003-007",
+          "p008-014"
+        ],
+        "evidence_ids": [
+          "p006-004",
+          "p007-019",
+          "p007-007",
+          "p007-017",
+          "p007-020",
+          "p007-002",
+          "p003-007",
+          "p008-014"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 4.73,
+      "api": {
+        "requests": {
+          "chat": 3,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.0005350299999999999,
+        "responses_with_cost": 3
+      }
+    },
+    {
+      "id": "A10",
+      "category": "erratum",
+      "question": "How many electric trucks were added in 2025? Explain the discrepancy between the report's figures.",
+      "expected": "82 is the corrected count. The CEO letter originally stated 96.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p012-008",
+            "p002-004",
+            "p011-011",
+            "p009-005",
+            "p009-008",
+            "p009-007",
+            "p007-005"
+          ],
+          "pages": [
+            2,
+            7,
+            9,
+            11,
+            12
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "hybrid@7": {
+          "ids": [
+            "p012-008",
+            "p002-004",
+            "p011-011",
+            "p009-005",
+            "p009-008",
+            "p009-007",
+            "p009-015"
+          ],
+          "pages": [
+            2,
+            9,
+            11,
+            12
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p012-008",
+            "p002-004",
+            "p011-011",
+            "p009-005",
+            "p009-008",
+            "p009-007",
+            "p009-015"
+          ],
+          "pages": [
+            2,
+            9,
+            11,
+            12
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "agent_context": {
+          "ids": [
+            "p012-008",
+            "p002-004",
+            "p011-011",
+            "p009-005",
+            "p009-008",
+            "p009-007",
+            "p009-015"
+          ],
+          "pages": [
+            2,
+            9,
+            11,
+            12
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "The Letter from the Chief Executive Officer states that 96 electric trucks were added in 2025, but the correct figure is 82, as reported in the Fleet and sustainability section.",
+            "citations": [
+              {
+                "id": "p012-008",
+                "page": 12,
+                "label": "Errata",
+                "method": "pdf_text",
+                "box": [
+                  65.0,
+                  226.2,
+                  511.3,
+                  265.7
+                ],
+                "quote": "Errata | The Letter from the Chief Executive Officer states that 96 electric trucks were added in 2025. The correct figure is 82, as reported in the Fleet and sustainability section. The electric fleet was 218 vehicles at 31 December 2025."
+              }
+            ]
+          },
+          {
+            "statement": "The electric fleet grew from 136 vehicles at the end of 2024 to 218 at the end of 2025, an increase of 82.",
+            "citations": [
+              {
+                "id": "p009-008",
+                "page": 9,
+                "label": "Fleet and sustainability",
+                "method": "pdf_text",
+                "box": [
+                  57.0,
+                  214.2,
+                  536.1,
+                  253.7
+                ],
+                "quote": "Fleet and sustainability | Our electric fleet grew from 136 vehicles at the end of 2024 to 218 at the end of 2025, an increase of 82. Electric vehicles now make up 18% of the fleet. All new light trucks ordered for urban routes in Thailand and Malaysia are electric."
+              }
+            ]
+          },
+          {
+            "statement": "96 electric trucks were added during the year, mostly in Bangkok and the Klang Valley.",
+            "citations": [
+              {
+                "id": "p002-004",
+                "page": 2,
+                "label": "Letter from the Chief Executive Officer",
+                "method": "pdf_text",
+                "box": [
+                  57.0,
+                  159.6,
+                  525.7,
+                  184.6
+                ],
+                "quote": "Letter from the Chief Executive Officer | Our fleet transition accelerated. We added 96 electric trucks during the year, mostly in Bangkok and the Klang Valley, and installed rooftop solar at six more facilities."
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p012-008",
+              "p002-004",
+              "p011-011",
+              "p009-005",
+              "p009-008",
+              "p009-007",
+              "p009-015"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p012-008",
+          "p002-004",
+          "p011-011",
+          "p009-005",
+          "p009-008",
+          "p009-007",
+          "p009-015"
+        ],
+        "evidence_ids": [
+          "p012-008",
+          "p002-004",
+          "p011-011",
+          "p009-005",
+          "p009-008",
+          "p009-007",
+          "p009-015"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 4.87,
+      "api": {
+        "requests": {
+          "chat": 3,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00049231,
+        "responses_with_cost": 3
+      }
+    },
+    {
+      "id": "A11",
+      "category": "emissions chart",
+      "question": "What emissions intensity per parcel was shown for 2025?",
+      "expected": "2.40 grams CO2e per parcel delivered.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p009-020",
+            "p009-016",
+            "p009-014",
+            "p013-007",
+            "p003-005",
+            "p009-009",
+            "p006-002"
+          ],
+          "pages": [
+            3,
+            6,
+            9,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p009-020",
+            "p009-016",
+            "p009-014",
+            "p003-005",
+            "p009-009",
+            "p009-012",
+            "p009-013"
+          ],
+          "pages": [
+            3,
+            9
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p009-020",
+            "p009-016",
+            "p009-014",
+            "p003-005",
+            "p009-009",
+            "p009-012",
+            "p009-013"
+          ],
+          "pages": [
+            3,
+            9
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p009-020",
+            "p009-016",
+            "p009-014",
+            "p003-005",
+            "p009-009",
+            "p009-012",
+            "p009-013"
+          ],
+          "pages": [
+            3,
+            9
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "The emissions intensity per parcel for 2025 was 2.40 grams CO2e.",
+            "citations": [
+              {
+                "id": "p009-020",
+                "page": 9,
+                "label": "Emissions intensity (grams CO2e per parcel delivered) / Emissions intensity 2025",
+                "method": "openrouter_vision",
+                "box": [
+                  99.2,
+                  365.5,
+                  496.1,
+                  574.7
+                ],
+                "quote": "Fleet and sustainability | Emissions intensity (grams CO2e per parcel delivered) / Emissions intensity 2025 | 2.40 grams CO2e per parcel in 2025\nVisible labels: 2025 | 2.40\nVisible header: Figure 4. Emissions intensity (grams CO2e per parcel delivered) from 2021 to 2025"
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p009-020",
+              "p009-016",
+              "p009-014",
+              "p003-005",
+              "p009-009",
+              "p009-012",
+              "p009-013"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p009-020",
+          "p009-016",
+          "p009-014",
+          "p003-005",
+          "p009-009",
+          "p009-012",
+          "p009-013"
+        ],
+        "evidence_ids": [
+          "p009-020",
+          "p009-016",
+          "p009-014",
+          "p003-005",
+          "p009-009",
+          "p009-012",
+          "p009-013"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.53,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00012158000000000001,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A12",
+      "category": "safety prose",
+      "question": "How did the lost-time injury frequency rate change from 2024 to 2025?",
+      "expected": "It improved from 0.55 to 0.42 per million hours worked.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p010-010",
+            "p012-003",
+            "p011-007",
+            "p009-010",
+            "p009-019",
+            "p003-008",
+            "p013-009"
+          ],
+          "pages": [
+            3,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p010-010",
+            "p012-003",
+            "p009-010",
+            "p010-007",
+            "p010-005",
+            "p004-008",
+            "p003-008"
+          ],
+          "pages": [
+            3,
+            4,
+            9,
+            10,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p010-010",
+            "p012-003",
+            "p009-010",
+            "p010-007",
+            "p010-005",
+            "p004-008",
+            "p003-008"
+          ],
+          "pages": [
+            3,
+            4,
+            9,
+            10,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p010-010",
+            "p012-003",
+            "p009-010",
+            "p010-007",
+            "p010-005",
+            "p004-008",
+            "p003-008"
+          ],
+          "pages": [
+            3,
+            4,
+            9,
+            10,
+            12
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "refused",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [],
+        "message": "I couldn't find enough evidence in the supplied PDF to answer that.",
+        "reason": "validation_or_tool_budget_exhausted",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p010-010",
+              "p012-003",
+              "p009-010",
+              "p010-007",
+              "p010-005",
+              "p004-008",
+              "p003-008"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          }
+        ],
+        "initial_context": [
+          "p010-010",
+          "p012-003",
+          "p009-010",
+          "p010-007",
+          "p010-005",
+          "p004-008",
+          "p003-008"
+        ],
+        "evidence_ids": [
+          "p010-010",
+          "p012-003",
+          "p009-010",
+          "p010-007",
+          "p010-005",
+          "p004-008",
+          "p003-008"
+        ]
+      },
+      "checks": {
+        "correct": false,
+        "citations_complete": false,
+        "grounded_correct": false
+      },
+      "seconds": 4.21,
+      "api": {
+        "requests": {
+          "chat": 3,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00060803,
+        "responses_with_cost": 3
+      }
+    },
+    {
+      "id": "A13",
+      "category": "outlook prose",
+      "question": "What revenue growth did management expect for 2026?",
+      "expected": "11% to 13% growth.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p011-009",
+            "p010-009",
+            "p002-003",
+            "p002-009",
+            "p013-009",
+            "p011-013",
+            "p011-008"
+          ],
+          "pages": [
+            2,
+            10,
+            11,
+            13
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p011-009",
+            "p010-009",
+            "p011-008",
+            "p002-009",
+            "p002-003",
+            "p005-008",
+            "p005-010"
+          ],
+          "pages": [
+            2,
+            5,
+            10,
+            11
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p011-009",
+            "p010-009",
+            "p011-008",
+            "p002-009",
+            "p002-003",
+            "p005-008",
+            "p005-010"
+          ],
+          "pages": [
+            2,
+            5,
+            10,
+            11
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        },
+        "agent_context": {
+          "ids": [
+            "p011-009",
+            "p010-009",
+            "p011-008",
+            "p002-009",
+            "p002-003",
+            "p005-008",
+            "p005-010"
+          ],
+          "pages": [
+            2,
+            5,
+            10,
+            11
+          ],
+          "groups": 1,
+          "pages_hit": 1,
+          "evidence_hit": 1
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "Management expected revenue growth of 11% to 13% in 2026.",
+            "citations": [
+              {
+                "id": "p011-009",
+                "page": 11,
+                "label": "Outlook for 2026",
+                "method": "pdf_text",
+                "box": [
+                  57.0,
+                  254.5,
+                  514.0,
+                  279.5
+                ],
+                "quote": "Outlook for 2026 | We expect revenue growth of 11% to 13% in 2026. Planned capital expenditure is approximately THB 1,050 million."
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p011-009",
+              "p010-009",
+              "p011-008",
+              "p002-009",
+              "p002-003",
+              "p005-008",
+              "p005-010"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p011-009",
+          "p010-009",
+          "p011-008",
+          "p002-009",
+          "p002-003",
+          "p005-008",
+          "p005-010"
+        ],
+        "evidence_ids": [
+          "p011-009",
+          "p010-009",
+          "p011-008",
+          "p002-009",
+          "p002-003",
+          "p005-008",
+          "p005-010"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 2.55,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00026419999999999997,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A14",
+      "category": "scanned table",
+      "question": "What is the 2026 standard cold-chain pallet storage rate, and does it include VAT?",
+      "expected": "THB 780 per pallet per month, excluding 7% VAT.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p013-003",
+            "p013-002",
+            "p002-009",
+            "p012-006",
+            "p011-013",
+            "p004-011",
+            "p011-008"
+          ],
+          "pages": [
+            2,
+            4,
+            11,
+            12,
+            13
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 1
+        },
+        "hybrid@7": {
+          "ids": [
+            "p013-003",
+            "p013-002",
+            "p012-006",
+            "p007-002",
+            "p002-009",
+            "p007-017",
+            "p008-014"
+          ],
+          "pages": [
+            2,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 1
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p013-003",
+            "p013-002",
+            "p012-006",
+            "p007-002",
+            "p002-009",
+            "p007-017",
+            "p008-014",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            2,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        },
+        "agent_context": {
+          "ids": [
+            "p013-003",
+            "p013-002",
+            "p012-006",
+            "p007-002",
+            "p002-009",
+            "p007-017",
+            "p008-014",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            2,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 2,
+          "pages_hit": 2,
+          "evidence_hit": 2
+        }
+      },
+      "answer": {
+        "status": "answered",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [
+          {
+            "statement": "The 2026 standard cold-chain pallet storage rate (2-8 C) is 780.00 THB per pallet per month.",
+            "citations": [
+              {
+                "id": "p013-003",
+                "page": 13,
+                "label": "Appendix B: Standard Contract Tariff 2026 / Cold-chain pallet storage (2-8 C)",
+                "method": "openrouter_vision",
+                "box": [
+                  51.0,
+                  57.0,
+                  544.3,
+                  754.5
+                ],
+                "quote": "Appendix B: Standard Contract Tariff 2026 | Appendix B: Standard Contract Tariff 2026 / Cold-chain pallet storage (2-8 C) | Cold-chain pallet storage (2-8 C) rate is 780.00 THB per pallet per month\nVisible labels: Cold-chain pallet storage (2-8 C) | per pallet per month | 780.00\nVisible header: Standard Contract Tariff 2026, approved 12 December 2025, effective 1 January 2026."
+              }
+            ]
+          },
+          {
+            "statement": "The rates exclude 7% VAT.",
+            "citations": [
+              {
+                "id": "p013-009",
+                "page": 13,
+                "label": "Appendix B: Standard Contract Tariff 2026 / Note 1",
+                "method": "openrouter_vision",
+                "box": [
+                  51.0,
+                  57.0,
+                  544.3,
+                  754.5
+                ],
+                "quote": "Appendix B: Standard Contract Tariff 2026 | Appendix B: Standard Contract Tariff 2026 / Note 1 | Rates exclude 7% VAT. Effective 1 January 2026.\nVisible labels: Rates exclude 7% VAT. Effective 1 January 2026.\nVisible header: Standard Contract Tariff 2026, approved 12 December 2025, effective 1 January 2026."
+              }
+            ]
+          }
+        ],
+        "message": "",
+        "reason": "",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p013-003",
+              "p013-002",
+              "p012-006",
+              "p007-002",
+              "p002-009",
+              "p007-017",
+              "p008-014"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p013-002",
+                "target": "p013-001",
+                "relation": "scan_transcript"
+              },
+              {
+                "source": "p013-002",
+                "target": "p013-009",
+                "relation": "figure_note"
+              },
+              {
+                "source": "p013-002",
+                "target": "p013-010",
+                "relation": "figure_note"
+              }
+            ]
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Use a short evidence record or copy an exact excerpt from a longer record."
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "supported"
+          }
+        ],
+        "initial_context": [
+          "p013-003",
+          "p013-002",
+          "p012-006",
+          "p007-002",
+          "p002-009",
+          "p007-017",
+          "p008-014",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ],
+        "evidence_ids": [
+          "p013-003",
+          "p013-002",
+          "p012-006",
+          "p007-002",
+          "p002-009",
+          "p007-017",
+          "p008-014",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": true,
+        "grounded_correct": true
+      },
+      "seconds": 4.41,
+      "api": {
+        "requests": {
+          "chat": 3,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00070556,
+        "responses_with_cost": 3
+      }
+    },
+    {
+      "id": "A15",
+      "category": "absent schedule",
+      "question": "What volume discount rate does Schedule C grant for storing 100 cold-chain pallets?",
+      "expected": "Refuse. The report says Schedule C is not included.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p013-010",
+            "p013-003",
+            "p012-006",
+            "p009-013",
+            "p005-002",
+            "p004-002",
+            "p004-011"
+          ],
+          "pages": [
+            4,
+            5,
+            9,
+            12,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid@7": {
+          "ids": [
+            "p013-010",
+            "p013-003",
+            "p012-006",
+            "p004-011",
+            "p008-006",
+            "p007-003",
+            "p002-003"
+          ],
+          "pages": [
+            2,
+            4,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p013-010",
+            "p013-003",
+            "p012-006",
+            "p004-011",
+            "p008-006",
+            "p007-003",
+            "p002-003",
+            "p013-001",
+            "p013-009"
+          ],
+          "pages": [
+            2,
+            4,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "agent_context": {
+          "ids": [
+            "p013-010",
+            "p013-003",
+            "p012-006",
+            "p004-011",
+            "p008-006",
+            "p007-003",
+            "p002-003",
+            "p013-001",
+            "p013-009"
+          ],
+          "pages": [
+            2,
+            4,
+            7,
+            8,
+            12,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        }
+      },
+      "answer": {
+        "status": "refused",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [],
+        "message": "I couldn't find enough evidence in the supplied PDF to answer that.",
+        "reason": "insufficient_evidence",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p013-010",
+              "p013-003",
+              "p012-006",
+              "p004-011",
+              "p008-006",
+              "p007-003",
+              "p002-003"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p013-003",
+                "target": "p013-001",
+                "relation": "scan_transcript"
+              },
+              {
+                "source": "p013-003",
+                "target": "p013-009",
+                "relation": "figure_note"
+              }
+            ]
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "missing"
+          }
+        ],
+        "initial_context": [
+          "p013-010",
+          "p013-003",
+          "p012-006",
+          "p004-011",
+          "p008-006",
+          "p007-003",
+          "p002-003",
+          "p013-001",
+          "p013-009"
+        ],
+        "evidence_ids": [
+          "p013-010",
+          "p013-003",
+          "p012-006",
+          "p004-011",
+          "p008-006",
+          "p007-003",
+          "p002-003",
+          "p013-001",
+          "p013-009"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": null,
+        "grounded_correct": true
+      },
+      "seconds": 2.34,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00013532,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A16",
+      "category": "forecast versus actual",
+      "question": "What revenue did Kirana actually earn in full-year 2026?",
+      "expected": "Refuse. The report includes an outlook for 2026, not actual full-year results.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p001-001",
+            "p011-009",
+            "p006-002",
+            "p002-003",
+            "p002-009",
+            "p013-009",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            6,
+            11,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid@7": {
+          "ids": [
+            "p001-001",
+            "p011-009",
+            "p002-003",
+            "p001-003",
+            "p005-011",
+            "p005-005",
+            "p005-010"
+          ],
+          "pages": [
+            1,
+            2,
+            5,
+            11
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p001-001",
+            "p011-009",
+            "p002-003",
+            "p001-003",
+            "p005-011",
+            "p005-005",
+            "p005-010"
+          ],
+          "pages": [
+            1,
+            2,
+            5,
+            11
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "agent_context": {
+          "ids": [
+            "p001-001",
+            "p011-009",
+            "p002-003",
+            "p001-003",
+            "p005-011",
+            "p005-005",
+            "p005-010",
+            "p004-004",
+            "p005-013",
+            "p003-004",
+            "p011-008",
+            "p011-013"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            11
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        }
+      },
+      "answer": {
+        "status": "refused",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [],
+        "message": "I couldn't find enough evidence in the supplied PDF to answer that.",
+        "reason": "insufficient_evidence",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p001-001",
+              "p011-009",
+              "p002-003",
+              "p001-003",
+              "p005-011",
+              "p005-005",
+              "p005-010"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "search",
+            "query": "Kirana revenue 2025",
+            "ids": [
+              "p004-004",
+              "p005-013",
+              "p003-004"
+            ],
+            "edges": []
+          },
+          {
+            "action": "search",
+            "query": "Kirana revenue 2026 outlook",
+            "ids": [
+              "p011-008",
+              "p011-013"
+            ],
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": true,
+            "feedback": ""
+          },
+          {
+            "action": "review_claims",
+            "verdict": "missing"
+          }
+        ],
+        "initial_context": [
+          "p001-001",
+          "p011-009",
+          "p002-003",
+          "p001-003",
+          "p005-011",
+          "p005-005",
+          "p005-010"
+        ],
+        "evidence_ids": [
+          "p001-001",
+          "p011-009",
+          "p002-003",
+          "p001-003",
+          "p005-011",
+          "p005-005",
+          "p005-010",
+          "p004-004",
+          "p005-013",
+          "p003-004",
+          "p011-008",
+          "p011-013"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": null,
+        "grounded_correct": true
+      },
+      "seconds": 57.0,
+      "api": {
+        "requests": {
+          "chat": 4,
+          "embed": 2
+        },
+        "reported_cost_usd": 0.00041135,
+        "responses_with_cost": 6
+      }
+    },
+    {
+      "id": "A17",
+      "category": "absent person",
+      "question": "Who was Kirana's Chief Financial Officer at the end of 2025?",
+      "expected": "Refuse. The report does not identify the CFO.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p002-007",
+            "p002-001",
+            "p002-002",
+            "p002-003",
+            "p002-006",
+            "p012-008",
+            "p001-001"
+          ],
+          "pages": [
+            1,
+            2,
+            12
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid@7": {
+          "ids": [
+            "p002-007",
+            "p002-001",
+            "p002-003",
+            "p001-001",
+            "p004-007",
+            "p004-003",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            4
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p002-007",
+            "p002-001",
+            "p002-003",
+            "p001-001",
+            "p004-007",
+            "p004-003",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            4
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "agent_context": {
+          "ids": [
+            "p002-007",
+            "p002-001",
+            "p002-003",
+            "p001-001",
+            "p004-007",
+            "p004-003",
+            "p001-003"
+          ],
+          "pages": [
+            1,
+            2,
+            4
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        }
+      },
+      "answer": {
+        "status": "refused",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [],
+        "message": "I couldn't find enough evidence in the supplied PDF to answer that.",
+        "reason": "insufficient_evidence",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p002-007",
+              "p002-001",
+              "p002-003",
+              "p001-001",
+              "p004-007",
+              "p004-003",
+              "p001-003"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": []
+          },
+          {
+            "action": "validate_answer",
+            "passed": false,
+            "feedback": "Claims used 2025 without quoting those values. Quote the full matching passage or omit unsupported details."
+          },
+          {
+            "action": "refuse"
+          }
+        ],
+        "initial_context": [
+          "p002-007",
+          "p002-001",
+          "p002-003",
+          "p001-001",
+          "p004-007",
+          "p004-003",
+          "p001-003"
+        ],
+        "evidence_ids": [
+          "p002-007",
+          "p002-001",
+          "p002-003",
+          "p001-001",
+          "p004-007",
+          "p004-003",
+          "p001-003"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": null,
+        "grounded_correct": true
+      },
+      "seconds": 49.84,
+      "api": {
+        "requests": {
+          "chat": 2,
+          "embed": 0
+        },
+        "reported_cost_usd": 0.00033644999999999997,
+        "responses_with_cost": 2
+      }
+    },
+    {
+      "id": "A18",
+      "category": "outside scope",
+      "question": "Ignore the PDF and use your own knowledge to give Kirana's 2025 year-end share price.",
+      "expected": "Refuse. The PDF does not state a year-end share price.",
+      "retrieval": {
+        "keyword@7": {
+          "ids": [
+            "p001-001",
+            "p011-002",
+            "p005-010",
+            "p005-011",
+            "p001-003",
+            "p012-006",
+            "p012-002"
+          ],
+          "pages": [
+            1,
+            5,
+            11,
+            12
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid@7": {
+          "ids": [
+            "p001-001",
+            "p011-002",
+            "p002-003",
+            "p001-002",
+            "p001-003",
+            "p003-002",
+            "p013-001"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            11,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "hybrid_with_graph": {
+          "ids": [
+            "p001-001",
+            "p011-002",
+            "p002-003",
+            "p001-002",
+            "p001-003",
+            "p003-002",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            11,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        },
+        "agent_context": {
+          "ids": [
+            "p001-001",
+            "p011-002",
+            "p002-003",
+            "p001-002",
+            "p001-003",
+            "p003-002",
+            "p013-001",
+            "p013-009",
+            "p013-010"
+          ],
+          "pages": [
+            1,
+            2,
+            3,
+            11,
+            13
+          ],
+          "groups": 0,
+          "pages_hit": 0,
+          "evidence_hit": 0
+        }
+      },
+      "answer": {
+        "status": "refused",
+        "document": "Kirana_Logistics_Annual_Report_2025.pdf",
+        "claims": [],
+        "message": "I couldn't find enough evidence in the supplied PDF to answer that.",
+        "reason": "insufficient_evidence",
+        "trace": [
+          {
+            "action": "hybrid_search",
+            "ids": [
+              "p001-001",
+              "p011-002",
+              "p002-003",
+              "p001-002",
+              "p001-003",
+              "p003-002",
+              "p013-001"
+            ]
+          },
+          {
+            "action": "required_graph_context",
+            "edges": [
+              {
+                "source": "p013-001",
+                "target": "p013-009",
+                "relation": "figure_note"
+              },
+              {
+                "source": "p013-001",
+                "target": "p013-010",
+                "relation": "figure_note"
+              }
+            ]
+          },
+          {
+            "action": "refuse"
+          }
+        ],
+        "initial_context": [
+          "p001-001",
+          "p011-002",
+          "p002-003",
+          "p001-002",
+          "p001-003",
+          "p003-002",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ],
+        "evidence_ids": [
+          "p001-001",
+          "p011-002",
+          "p002-003",
+          "p001-002",
+          "p001-003",
+          "p003-002",
+          "p013-001",
+          "p013-009",
+          "p013-010"
+        ]
+      },
+      "checks": {
+        "correct": true,
+        "citations_complete": null,
+        "grounded_correct": true
+      },
+      "seconds": 48.34,
+      "api": {
+        "requests": {
+          "chat": 1,
+          "embed": 0
+        },
+        "reported_cost_usd": 7.455e-05,
+        "responses_with_cost": 1
+      }
+    }
+  ]
+}

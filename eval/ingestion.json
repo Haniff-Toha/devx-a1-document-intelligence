@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "name": "Kirana_Logistics_Annual_Report_2025.pdf",
+  "sha256": "109f0c113b5d8184ff720b87d69d3d9c7c236cf3be4aff5cd02b50addea43605",
+  "pages": [
+    {
+      "page": 1,
+      "evidence": 5,
+      "notes": []
+    },
+    {
+      "page": 2,
+      "evidence": 9,
+      "notes": []
+    },
+    {
+      "page": 3,
+      "evidence": 9,
+      "notes": []
+    },
+    {
+      "page": 4,
+      "evidence": 12,
+      "notes": []
+    },
+    {
+      "page": 5,
+      "evidence": 13,
+      "notes": []
+    },
+    {
+      "page": 6,
+      "evidence": 6,
+      "notes": []
+    },
+    {
+      "page": 7,
+      "evidence": 25,
+      "notes": []
+    },
+    {
+      "page": 8,
+      "evidence": 14,
+      "notes": []
+    },
+    {
+      "page": 9,
+      "evidence": 20,
+      "notes": []
+    },
+    {
+      "page": 10,
+      "evidence": 10,
+      "notes": []
+    },
+    {
+      "page": 11,
+      "evidence": 13,
+      "notes": []
+    },
+    {
+      "page": 12,
+      "evidence": 8,
+      "notes": []
+    },
+    {
+      "page": 13,
+      "evidence": 10,
+      "notes": []
+    }
+  ],
+  "evidence_count": 154,
+  "edge_count": 792,
+  "embedding_model": "openai/text-embedding-3-small",
+  "vision_model": "google/gemini-3.1-flash-lite",
+  "embedding_dimensions": 1536,
+  "seconds": 87.7,
+  "api": {
+    "requests": {
+      "chat": 8,
+      "embed": 3
+    },
+    "reported_cost_usd": 0.00816935,
+    "responses_with_cost": 11
+  },
+  "sampled_peak_working_set_mib": 439.0,
+  "index_bytes": 1335296,
+  "venv_mib": 289.0
+}
