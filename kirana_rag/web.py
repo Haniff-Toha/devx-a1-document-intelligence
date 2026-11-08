@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+from collections.abc import Callable
 from functools import lru_cache
 from html import escape
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -15,6 +16,7 @@ from markdown_it import MarkdownIt
 from .agent import Agent
 from .openrouter import OpenRouter, OpenRouterError
 from .retrieval import Index
+from .visuals import Visual, catalog, mentions_visual, requested_visuals
 
 ASSETS = Path(__file__).with_name("web_assets")
 ROOT = ASSETS.parent.parent
@@ -29,6 +31,7 @@ STATIC = {
     "/assets/app.js": ("app.js", "text/javascript; charset=utf-8"),
 }
 PAGE_ROUTE = re.compile(r"/api/pages/([1-9][0-9]{0,8})")
+VISUAL_ROUTE = re.compile(r"/api/visuals/(visual-[1-9][0-9]*-[1-9][0-9]*)")
 CSP = ("default-src 'self'; object-src 'none'; base-uri 'none'; "
        "frame-ancestors 'self'; form-action 'self'")
 
@@ -76,24 +79,75 @@ class Workbench:
         if hashlib.sha256(self.pdf).hexdigest() != index.metadata["sha256"]:
             raise ValueError("This PDF differs from the indexed source. Ingest it first, or choose its matching index.")
         self.index = index
+        self.visuals = catalog(index.items)
         with pymupdf.open(stream=self.pdf, filetype="pdf") as document:
             self.pages = len(document)
         self.name = pdf.name
 
     @lru_cache(maxsize=6)
     def page_png(self, number: int) -> bytes:
+        return self._render_png(number)
+
+    @lru_cache(maxsize=8)
+    def visual_png(self, identifier: str) -> bytes:
+        source = self.visuals[identifier].source
+        return self._render_png(source.page, source.box)
+
+    def _render_png(self, number: int, box: tuple | None = None) -> bytes:
         with pymupdf.open(stream=self.pdf, filetype="pdf") as document:
             page = document[number - 1]
-            scale = min(2, 1600 / max(page.rect.width, page.rect.height))
-            return page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), alpha=False).tobytes("png")
+            clip = page.rect if box is None else (pymupdf.Rect(box) * page.rotation_matrix) & page.rect
+            if clip.is_empty:
+                raise ValueError("The figure region is empty.")
+            scale = min(2.5, 1600 / max(clip.width, clip.height))
+            return page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), clip=clip, alpha=False).tobytes("png")
 
-    def ask(self, question: str) -> dict:
-        result = Agent(self.index, OpenRouter.from_env()).answer(question)
+    def ask(self, question: str, *, progress: Callable[[str], None] | None = None) -> dict:
+        direct = requested_visuals(question.strip(), self.visuals)
+        if direct is not None:
+            if progress:
+                progress("figures")
+            if not direct:
+                return {"status": "refused", "message": "I couldn't find a matching visual in the indexed PDF.",
+                        "claims": [], "visuals": []}
+            kind = direct[0].kind if all(visual.kind == direct[0].kind for visual in direct) else "visual"
+            noun = kind if len(direct) == 1 else f"{kind}s"
+            crops = self._visual_cards(direct)
+            return {
+                "status": "answered", "message": "", "catalog": True, "visuals": crops,
+                "claims": [{"statement": f"I found {len(direct)} matching {noun} in the PDF.",
+                            "citations": [crop["citation"] for crop in crops]}],
+            }
+        result = Agent(self.index, OpenRouter.from_env()).answer(question, progress=progress)
+        selected = {}
         with pymupdf.open(stream=self.pdf, filetype="pdf") as document:
             for claim in result["claims"]:
                 for cite in claim["citations"]:
                     cite["highlight"] = highlight_region(document[cite["page"] - 1], cite["box"])
-        return {"status": result["status"], "message": result["message"], "claims": result["claims"]}
+                    if mentions_visual(question) and (item := self.index.by_id.get(cite.get("id"))):
+                        if item.group in self.visuals:
+                            selected[item.group] = self.visuals[item.group]
+        return {"status": result["status"], "message": result["message"], "claims": result["claims"],
+                "visuals": self._visual_cards(list(selected.values()))}
+
+    def _visual_cards(self, visuals: list[Visual]) -> list[dict]:
+        if not visuals:
+            return []
+        cards = []
+        with pymupdf.open(stream=self.pdf, filetype="pdf") as document:
+            for visual in visuals:
+                item = visual.source
+                label = f"Figure {visual.number} · {visual.title}" if visual.number else visual.title
+                cards.append({
+                    "id": item.group, "kind": visual.kind, "title": label, "page": item.page,
+                    "image": f"/api/visuals/{item.group}",
+                    "citation": {
+                        "id": item.id, "page": item.page, "label": label, "method": item.method,
+                        "box": item.box, "quote": "",
+                        "highlight": highlight_region(document[item.page - 1], item.box),
+                    },
+                })
+        return cards
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -136,6 +190,11 @@ class Handler(BaseHTTPRequestHandler):
                 self._json({"error": "This page is outside the PDF."}, 404)
                 return
             self._send(workbench.page_png(number), "image/png")
+        elif (match := VISUAL_ROUTE.fullmatch(path)) and match[1] in workbench.visuals:
+            try:
+                self._send(workbench.visual_png(match[1]), "image/png")
+            except ValueError:
+                self._json({"error": "This visual could not be rendered."}, 404)
         elif path in DOCUMENTS:
             document = DOCUMENTS[path]
             if document.suffix == ".md":
@@ -148,7 +207,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self._local():
             return
-        if urlsplit(self.path).path != "/api/ask":
+        path = urlsplit(self.path).path
+        if path not in {"/api/ask", "/api/ask/stream"}:
             self._json({"error": "Page not found."}, 404)
             return
         if self.headers.get("Origin") != f"http://{self.server.authority}":
@@ -168,6 +228,9 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, UnicodeError):
             self._json({"error": "Enter a question between 1 and 800 characters."}, 400)
             return
+        if path.endswith("/stream"):
+            self._stream_answer(question)
+            return
         try:
             result = self.server.workbench.ask(question)
         except OpenRouterError as exc:
@@ -177,6 +240,34 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"error": str(exc)}, 409)
             return
         self._json(result)
+
+    def _stream_answer(self, question: str):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.close_connection = True
+
+        def emit(event: str, **fields):
+            self.wfile.write(json.dumps({"type": event, **fields}).encode() + b"\n")
+            self.wfile.flush()
+
+        try:
+            try:
+                result = self.server.workbench.ask(question, progress=lambda stage: emit("progress", stage=stage))
+            except (OpenRouterError, ValueError) as exc:
+                emit("error", message=str(exc))
+                return
+            emit("answer", status=result["status"], message=result["message"], catalog=result.get("catalog", False))
+            for claim in result["claims"]:
+                emit("claim", claim=claim)
+            if result["visuals"]:
+                emit("visuals", visuals=result["visuals"])
+            emit("done")
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            pass
 
 
 class Server(ThreadingHTTPServer):

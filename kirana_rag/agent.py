@@ -3,6 +3,7 @@
 import json
 import re
 import unicodedata
+from collections.abc import Callable
 from dataclasses import asdict
 from decimal import Decimal
 
@@ -137,10 +138,13 @@ class Agent:
         self.index = index
         self.client = client
 
-    def answer(self, question: str, *, vector: np.ndarray | None = None) -> dict:
+    def answer(self, question: str, *, vector: np.ndarray | None = None,
+               progress: Callable[[str], None] | None = None) -> dict:
         question = question.strip()
         if not question or len(question) > 800:
             raise ValueError("Use a question between 1 and 800 characters.")
+        if progress:
+            progress("search")
         if vector is None:
             vector = self.client.embed([question])[0]
         seeds, links = seed_evidence(self.index, question, vector)
@@ -174,6 +178,8 @@ class Agent:
                     for item in visible.values()
                 ],
             }
+            if progress:
+                progress("draft")
             decision = self.client.structured(
                 INSTRUCTIONS + (f"\nValidation feedback: {feedback}" if feedback else ""),
                 json.dumps(payload, ensure_ascii=False),
@@ -188,6 +194,8 @@ class Agent:
                 claims, feedback = validate_claims(decision.get("claims"), visible)
                 trace.append({"action": "validate_answer", "passed": bool(claims), "feedback": feedback})
                 if claims:
+                    if progress:
+                        progress("verify")
                     review = self.client.structured(
                         REVIEW_INSTRUCTIONS,
                         json.dumps({"question": question, "draft": claims}, ensure_ascii=False),
@@ -204,6 +212,8 @@ class Agent:
             if action == "search" and can_follow:
                 query = decision.get("query")
                 if isinstance(query, str) and 1 <= len(query.strip()) <= 180 and normalized(query) not in searched:
+                    if progress:
+                        progress("search")
                     searched.add(normalized(query))
                     extra_vector = self.client.embed([query.strip()])[0]
                     hits = self.index.search(query.strip(), k=7, vector=extra_vector)
@@ -225,6 +235,8 @@ class Agent:
                 if isinstance(ids, list) and 1 <= len(ids) <= 3 and all(
                     isinstance(identifier, str) and identifier in visible for identifier in ids
                 ):
+                    if progress:
+                        progress("links")
                     neighbors = self.index.expand(question, ids, seen=set(visible))
                     visible.update((item.id, item) for item, _ in neighbors)
                     trace.append({"action": "expand", "ids": ids,

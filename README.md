@@ -17,9 +17,11 @@ uv run --locked python -m kirana_rag ingest "Kirana_Logistics_Annual_Report_2025
 uv run --locked python -m kirana_rag web "Kirana_Logistics_Annual_Report_2025.pdf"
 ```
 
-Open [the local chatbot](http://127.0.0.1:8765) in your browser. Use **Chat** to ask a standalone question and **README** to read this guide. Select a page citation to jump to the physical PDF page and highlight the indexed evidence region. For scans and figures, the highlight can cover the whole image. **Open PDF** opens the original file at the selected page in the browser's PDF viewer.
+Open [the local chatbot](http://127.0.0.1:8765) in your browser. Use **Chat** to ask a standalone question and **README** to read this guide. Try **What charts are in this PDF?** or **Show the quarterly revenue chart**. The viewer finds visuals in the index and displays original PDF crops inline. Select a crop or citation to see its highlighted region on the source page. On smaller screens this switches to the **PDF** tab. **Open PDF** opens the original file at the selected page.
 
-The HTML interface uses the same agent and index as the CLI. It binds to loopback, and OpenRouter calls use the key on the server. For a second document, ingest it first, then restart the viewer with that PDF. Pass `--index .rag/second.sqlite3` to `ingest` and `web` or `ask` to keep separate indexes. The viewer checks the PDF's hash against the index before showing citations.
+The HTML interface uses the same agent and index as the CLI. Chart inventory and display requests look up indexed figure groups locally. Questions about the values in a chart still go through retrieval and citation review. The browser reads newline-delimited JSON from `POST /api/ask/stream` and displays progress as the server searches, follows evidence links, and checks claims. Answer text appears after verification. **Stop** closes the browser stream. An in-flight provider request can still finish.
+
+The viewer binds to loopback, and OpenRouter calls use the key on the server. For a second document, ingest it first, then restart the viewer with that PDF. Pass `--index .rag/second.sqlite3` to `ingest` and `web` or `ask` to keep separate indexes. The viewer checks the PDF's hash against the index before showing citations.
 
 ```powershell
 uv run --locked python -m kirana_rag ask "How many electric trucks were added in 2025? Explain the conflicting figures." --trace

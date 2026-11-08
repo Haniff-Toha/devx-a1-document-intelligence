@@ -19,26 +19,27 @@
       </div>
       <nav class="view-switch" aria-label="Workbench view">
         <button id="show-chat" type="button" aria-pressed="true">Chat</button>
+        <button id="show-source" type="button" aria-pressed="false">PDF</button>
         <button id="show-readme" type="button" aria-pressed="false">README</button>
       </nav>
     </div>
   </header>
 
   <main>
-    <div id="chat-view" class="workbench">
+    <div id="chat-view" class="workbench" data-panel="chat">
       <section class="panel conversation" aria-labelledby="chat-heading">
         <header class="panel-header">
           <h2 id="chat-heading">Ask the report</h2>
-          <p>Check answers against the original PDF.</p>
+          <p>Answers, charts, and citations from the original PDF.</p>
         </header>
         <div class="conversation-scroll" id="conversation-scroll">
           <div id="welcome" class="welcome">
             <h3>What would you like to know?</h3>
-            <p>Ask about a figure, a table, or an item in the report. Select a citation to see its evidence on the page.</p>
+            <p>Ask for a number or pull up a chart. Select any citation to see the evidence on its PDF page.</p>
             <div class="suggestions" aria-label="Example questions">
+              <button type="button" data-question="What charts are in this PDF?">Show the charts in this PDF</button>
               <button type="button" data-question="How many electric trucks were added in 2025? Explain the conflicting figures.">Which electric truck count is correct?</button>
               <button type="button" data-question="What is the 2026 standard cold-chain pallet storage rate, and does it include VAT?">What does cold-chain storage cost?</button>
-              <button type="button" data-question="What volume discount rate does Schedule C grant for storing 100 cold-chain pallets?">What discount does Schedule C offer?</button>
             </div>
           </div>
           <div id="transcript" role="log" aria-label="Conversation" aria-live="polite"></div>
@@ -55,7 +56,7 @@
 
       <section class="panel evidence" id="evidence-panel" aria-labelledby="evidence-heading">
         <header class="panel-header">
-          <h2 id="evidence-heading">Source PDF</h2>
+          <h2 id="evidence-heading" tabindex="-1">Source PDF</h2>
           <p id="document-name">Loading document…</p>
         </header>
         <div class="pdf-toolbar" aria-label="PDF page controls">

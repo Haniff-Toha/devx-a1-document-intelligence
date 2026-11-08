@@ -16,12 +16,22 @@ const previousPage = byId("previous-page");
 const nextPage = byId("next-page");
 const openPdf = byId("open-pdf");
 const showChat = byId("show-chat");
+const showSource = byId("show-source");
 const showReadme = byId("show-readme");
+const compact = matchMedia("(max-width: 52rem)");
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const stages = {
+  figures: "Finding visuals in the PDF…",
+  search: "Searching the report…",
+  links: "Following linked evidence…",
+  draft: "Preparing an answer from the evidence…",
+  verify: "Checking claims and citations…",
+};
 
 let documentInfo;
 let currentPage = 1;
 let pageRequest = 0;
-let busy = false;
+let activeRequest;
 let activeButton;
 
 function element(tag, text, className) {
@@ -38,10 +48,13 @@ async function requestJson(url, options) {
   return data;
 }
 
-function selectView(readme) {
+function selectView(view) {
+  const readme = view === "readme";
   byId("chat-view").hidden = readme;
   byId("readme-view").hidden = !readme;
-  showChat.setAttribute("aria-pressed", String(!readme));
+  if (!readme) byId("chat-view").dataset.panel = view;
+  showChat.setAttribute("aria-pressed", String(view === "chat"));
+  showSource.setAttribute("aria-pressed", String(view === "source"));
   showReadme.setAttribute("aria-pressed", String(readme));
   const frame = byId("readme");
   if (readme && !frame.hasAttribute("src")) frame.src = "/docs/README.md";
@@ -102,69 +115,196 @@ function addMessage(label, className) {
   return message;
 }
 
-function addAnswer(result) {
-  const message = addMessage("Assistant", "message-answer");
-  if (result.status === "refused") message.append(element("p", result.message, "refusal"));
-  for (const claim of result.claims) {
-    const block = element("div", "", "claim");
-    block.append(element("p", claim.statement));
-    const links = element("div", "", "citations");
-    for (const cite of claim.citations) {
-      const button = element("button", `Page ${cite.page}`, "citation");
-      button.type = "button";
-      button.title = cite.label;
-      button.setAttribute("aria-label", `Page ${cite.page} · ${cite.label}`);
-      button.setAttribute("aria-pressed", "false");
-      button.addEventListener("click", async () => {
-        markCitation(button);
-        await showPage(cite.page, cite);
-        if (activeButton === button && matchMedia("(max-width: 52rem)").matches) {
-          byId("evidence-panel").scrollIntoView({block: "start"});
-        }
-      });
-      links.append(button);
+function bindSource(button, cite) {
+  button.type = "button";
+  button.title = cite.label;
+  button.setAttribute("aria-label", `Page ${cite.page} · ${cite.label}`);
+  button.setAttribute("aria-pressed", "false");
+  button.addEventListener("click", () => {
+    markCitation(button);
+    if (compact.matches) {
+      selectView("source");
+      byId("evidence-heading").focus({preventScroll: true});
     }
-    block.append(links);
-    message.append(block);
+    showPage(cite.page, cite);
+  });
+}
+
+function followConversation(update, anchor) {
+  const view = conversationScroll;
+  const follow = view.scrollHeight - view.clientHeight - view.scrollTop < 72;
+  update();
+  if (follow) {
+    view.scrollTop = anchor
+      ? view.scrollTop + anchor.getBoundingClientRect().top - view.getBoundingClientRect().top - 12
+      : view.scrollHeight;
+  }
+}
+
+function revealText(node, text, signal) {
+  const words = text.match(/\S+\s*/g) || [];
+  if (reducedMotion.matches || words.length < 3) {
+    followConversation(() => { node.textContent = text; });
+    return;
+  }
+  return new Promise((resolve) => {
+    const duration = Math.min(520, words.length * 21);
+    let start;
+    function frame(now) {
+      start ??= now;
+      const fraction = signal.aborted ? 1 : Math.min(1, (now - start) / duration);
+      followConversation(() => {
+        node.textContent = fraction === 1 ? text : words.slice(0, 1 + Math.floor(fraction * words.length)).join("");
+      });
+      if (fraction === 1) resolve();
+      else requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+async function addClaim(message, claim, catalog, signal) {
+  const block = element("div", "", "claim");
+  const statement = element("p");
+  block.append(statement);
+  followConversation(() => message.append(block));
+  await revealText(statement, claim.statement, signal);
+  if (catalog) return;
+  const links = element("div", "", "citations");
+  const seen = new Set();
+  for (const cite of claim.citations) {
+    const key = `${cite.page}:${cite.label}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const label = cite.label.split(" / ").at(-1);
+    const button = element("button", `Page ${cite.page} · ${label}`, "citation");
+    bindSource(button, cite);
+    links.append(button);
+  }
+  followConversation(() => block.append(links));
+}
+
+function addVisuals(message, visuals) {
+  const gallery = element("div", "", "visual-gallery");
+  gallery.setAttribute("role", "group");
+  gallery.setAttribute("aria-label", "Original PDF visuals");
+  for (const visual of visuals) {
+    const button = element("button", "", "visual-card");
+    bindSource(button, visual.citation);
+    const thumb = element("span", "", "visual-thumb");
+    const img = element("img");
+    img.src = visual.image;
+    img.alt = visual.title;
+    img.loading = "lazy";
+    thumb.append(img);
+    button.append(thumb, element("span", visual.title, "visual-title"),
+                  element("span", `View on page ${visual.page}`, "visual-meta"));
+    gallery.append(button);
+  }
+  followConversation(() => message.append(gallery), message);
+}
+
+async function* streamAnswer(text, signal) {
+  const response = await fetch("/api/ask/stream", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({question: text}),
+    signal,
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.error || "The local server could not start the answer.");
+  }
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let pending = "";
+  try {
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      pending += decoder.decode(value, {stream: true});
+      const lines = pending.split("\n");
+      pending = lines.pop();
+      for (const line of lines) {
+        if (line) yield JSON.parse(line);
+      }
+    }
+  } finally {
+    reader.releaseLock();
   }
 }
 
 async function submit(event) {
   event.preventDefault();
   const text = question.value.trim();
-  if (!documentInfo || busy || !text) return;
-  busy = true;
-  askButton.disabled = true;
-  status.textContent = "Searching the report and checking citations…";
+  if (!documentInfo || activeRequest || !text) return;
+  const request = new AbortController();
+  activeRequest = request;
+  askButton.type = "button";
+  askButton.textContent = "Stop";
+  askButton.dataset.stop = "true";
+  status.textContent = "";
   byId("welcome").hidden = true;
   addMessage("You", "message-user").append(element("p", text));
+  const reply = addMessage("Assistant", "message-answer");
+  const progress = element("div", "Reading your question…", "reply-progress");
+  progress.setAttribute("role", "status");
+  reply.append(progress);
   question.value = "";
   conversationScroll.scrollTop = conversationScroll.scrollHeight;
   try {
-    const result = await requestJson("/api/ask", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({question: text}),
-    });
-    addAnswer(result);
+    let catalog = false;
+    let complete = false;
+    for await (const event of streamAnswer(text, request.signal)) {
+      if (request.signal.aborted) break;
+      if (event.type === "progress") {
+        progress.textContent = stages[event.stage] || progress.textContent;
+      } else if (event.type === "answer") {
+        progress.remove();
+        catalog = event.catalog;
+        if (event.status === "refused") {
+          followConversation(() => reply.append(element("p", event.message, "refusal")));
+        }
+      } else if (event.type === "claim") {
+        await addClaim(reply, event.claim, catalog, request.signal);
+      } else if (event.type === "visuals") {
+        addVisuals(reply, event.visuals);
+      } else if (event.type === "error") {
+        throw new Error(event.message);
+      } else if (event.type === "done") {
+        complete = true;
+      }
+    }
+    if (!complete && !request.signal.aborted) throw new Error("The answer was interrupted. Try asking again.");
   } catch (error) {
-    addMessage("Could not answer", "message-error").append(element("p", error.message));
-    if (!question.value) question.value = text;
+    if (!request.signal.aborted) {
+      followConversation(() => reply.append(element("p", error.message, "message-error")));
+      if (!question.value) question.value = text;
+    }
   } finally {
-    busy = false;
-    askButton.disabled = false;
-    status.textContent = "";
-    conversationScroll.scrollTop = conversationScroll.scrollHeight;
+    followConversation(() => {
+      progress.remove();
+      if (request.signal.aborted) reply.append(element("p", "Response stopped.", "refusal"));
+    });
+    activeRequest = null;
+    askButton.type = "submit";
+    askButton.textContent = "Ask";
+    delete askButton.dataset.stop;
   }
 }
 
-showChat.addEventListener("click", () => selectView(false));
-showReadme.addEventListener("click", () => selectView(true));
+showChat.addEventListener("click", () => selectView("chat"));
+showSource.addEventListener("click", () => selectView("source"));
+showReadme.addEventListener("click", () => selectView("readme"));
+compact.addEventListener("change", () => {
+  if (!compact.matches && showSource.getAttribute("aria-pressed") === "true") selectView("chat");
+});
 form.addEventListener("submit", submit);
+askButton.addEventListener("click", () => activeRequest?.abort());
 question.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
     event.preventDefault();
-    form.requestSubmit();
+    if (!activeRequest) form.requestSubmit();
   }
 });
 for (const button of document.querySelectorAll("[data-question]")) {
