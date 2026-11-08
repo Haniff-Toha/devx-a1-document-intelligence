@@ -156,6 +156,29 @@ class OpenRouterTests(unittest.TestCase):
 
 
 class IngestionTests(unittest.TestCase):
+    def test_captioned_table_retains_year_headers_after_blank_first_cell(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "metrics.pdf"
+            with pymupdf.open() as pdf:
+                page = pdf.new_page()
+                page.insert_text((54, 80), "Table 1. Annual metrics", fontsize=11)
+                for y, label, columns in (
+                    (105, "", ["2023", "2024", "2025"]),
+                    (125, "Metric A", ["1,000", "1,200", "1,300"]),
+                    (145, "Metric B", ["450", "500", "550"]),
+                ):
+                    if label:
+                        page.insert_text((65, y), label, fontsize=9)
+                    for x, text in zip((330, 410, 490), columns):
+                        width = pymupdf.get_text_length(text, fontsize=9)
+                        page.insert_text((x - width, y), text, fontsize=9)
+                pdf.save(path)
+            records = ingest(path).evidence
+        self.assertEqual([item.text for item in records if item.kind == "table_row"], [
+            "Metric A | 2023: 1,000 | 2024: 1,200 | 2025: 1,300",
+            "Metric B | 2023: 450 | 2024: 500 | 2025: 550",
+        ])
+
     def test_second_pdf_replaces_prior_index_and_retains_scan_provenance(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

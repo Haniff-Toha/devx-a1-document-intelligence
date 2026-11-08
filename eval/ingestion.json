@@ -70,20 +70,17 @@
     }
   ],
   "evidence_count": 154,
-  "edge_count": 792,
+  "edge_count": 794,
   "embedding_model": "openai/text-embedding-3-small",
   "vision_model": "google/gemini-3.1-flash-lite",
   "embedding_dimensions": 1536,
-  "seconds": 87.7,
+  "seconds": 91.63,
   "api": {
     "requests": {
       "chat": 8,
       "embed": 3
     },
-    "reported_cost_usd": 0.00816935,
+    "reported_cost_usd": 0.008170050000000002,
     "responses_with_cost": 11
-  },
-  "sampled_peak_working_set_mib": 439.0,
-  "index_bytes": 1335296,
-  "venv_mib": 289.0
+  }
 }

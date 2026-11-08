@@ -17,6 +17,7 @@ from .openrouter import OpenRouter, OpenRouterError
 CAPTION = re.compile(r"^(?:Table|Figure|Exhibit)\s+[\w.:-]+\b", re.I)
 TABLE = re.compile(r"^Table\s+[\w.:-]+\b", re.I)
 PAGE_NUMBER = re.compile(r"^(?:page\s+)?\d+(?:\s+of\s+\d+)?$", re.I)
+Cell = tuple[str, float, float]
 
 
 @dataclass
@@ -84,7 +85,7 @@ def in_margin(block: dict, height: float) -> bool:
     return block["bbox"][3] < height * 0.06 or block["bbox"][1] > height * 0.94
 
 
-def table_cells(block: dict) -> list[str] | None:
+def table_cells(block: dict) -> list[Cell] | None:
     """Recognize a row when separate text columns share a baseline."""
     lines = []
     for line in block["lines"]:
@@ -110,8 +111,32 @@ def table_cells(block: dict) -> list[str] | None:
         for candidate, _ in lines
     ):
         return None
-    return [" ".join(text for _, text in sorted(col, key=lambda cell: cell[0][1]))
-            for col in columns]
+    return [
+        (
+            " ".join(text for _, text in sorted(col, key=lambda cell: cell[0][1])),
+            min(box[0] for box, _ in col),
+            max(box[2] for box, _ in col),
+        )
+        for col in columns
+    ]
+
+
+def table_header(cells: list[Cell] | None, first_row: list[Cell] | None, *,
+                 captioned: bool) -> tuple[str, ...]:
+    if not cells or not first_row:
+        return ()
+    labels = tuple(text for text, _, _ in cells)
+    if len(cells) == len(first_row):
+        return labels
+    if not captioned or len(first_row) != len(cells) + 1 or first_row[0][2] >= cells[0][1]:
+        return ()
+    # A captioned table may leave the first column header empty. The remaining
+    # headers must line up with their data cells by left edge, right edge, or center.
+    for (_, left, right), (_, row_left, row_right) in zip(cells, first_row[1:]):
+        if min(abs(left - row_left), abs(right - row_right),
+               abs(left + right - row_left - row_right) / 2) > 4:
+            return ()
+    return ("", *labels)
 
 
 def heading(block: dict, typical_size: float) -> bool:
@@ -131,19 +156,17 @@ def native_evidence(blocks: list[dict], output: PageEvidence, section: str,
     while position < len(blocks):
         block = blocks[position]
         text = block_text(block)
-        cells = rows[position]
+        following = rows[position + 1] if position + 1 < len(rows) else None
+        header = table_header(rows[position], following, captioned=pending_table is not None)
         if TABLE.match(text):
             pending_table = text
             output.add("caption", section, text, text, block["bbox"])
         elif CAPTION.match(text):
             output.add("caption", section, text, text, block["bbox"])
-        elif cells and position + 1 < len(rows) and rows[position + 1] and (
-            len(rows[position + 1]) == len(cells)
-        ):
+        elif header:
             end = position + 1
-            while end < len(rows) and rows[end] and len(rows[end]) == len(cells):
+            while end < len(rows) and rows[end] and len(rows[end]) == len(header):
                 end += 1
-            header = tuple(cells)
             if not pending_table and previous_table and previous_table[0] == header:
                 _, title, group = previous_table
             else:
@@ -151,8 +174,10 @@ def native_evidence(blocks: list[dict], output: PageEvidence, section: str,
                 group = f"table-{output.number}-{position}"
             row_texts = []
             for row_index in range(position + 1, end):
-                values = rows[row_index]
-                row_text = " | ".join(f"{key}: {value}" for key, value in zip(header, values))
+                values = [value for value, _, _ in rows[row_index]]
+                row_text = " | ".join(
+                    f"{key}: {value}" if key else value for key, value in zip(header, values)
+                )
                 output.add("table_row", section, f"{title} / {values[0]}", row_text,
                            blocks[row_index]["bbox"], group=group, method="pdf_layout")
                 row_texts.append(" | ".join(values))

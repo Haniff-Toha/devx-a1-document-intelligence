@@ -55,6 +55,24 @@ Citation → original PDF page and highlighted evidence region
 3. **Retrieve and investigate.** Take the top seven results using BM25 and exact cosine similarity, combined with reciprocal-rank fusion. Preserve two strong keyword hits for names and other exact terms, and diversify repeated table or figure hits. Add directly connected corrections, continued tables, or figure notes. The model can then request up to two more steps through a revised search or a graph expansion. `--trace` shows the chosen action, IDs, and links.
 4. **Check the answer.** Each claim needs an evidence ID. Code uses the exact indexed record or verifies the quoted substring, confirms each numeric value appears in the supporting text, and attaches page numbers and labels. A separate model call reviews whether the draft answers the question and follows from the cited row, entity, unit, and period. Source text is treated as data, and the agent can only search or follow links. If evidence is insufficient or validation fails, it withholds the claim.
 
+### How the report's tables and visuals are read
+
+| Source | Extraction and verification |
+|---|---|
+| Native tables, pages 4 and 7–10 | PyMuPDF supplies text and coordinates. The parser groups cells by column, attaches their headers to each row, and links matching table headers across pages. It handles the blank first header cell in the emissions table. All 41 data rows were checked against an independent extraction. |
+| KPI infographic, page 3 | OCR reads the printed text. The vision model groups each metric with the value, unit, and comparison printed on the same tile. All six tiles were checked. |
+| Revenue, delivery, and emissions charts, pages 5, 6, and 9 | The pipeline crops each image and keeps the OCR transcript plus structured vision records. Vision pairs the printed values with the corresponding quarter, country, month, or year. All 25 labeled points were checked. |
+| Network diagram, page 7 | Vision reads each pair of connected locations together with the printed traffic or sailing rate. All seven connections were checked against the rendered page. |
+| Scanned tariff, page 13 | OCR and vision capture the seven services, rates, and billing units. Separate notes retain the VAT exclusion, effective date, and the reference to the missing discount schedule. |
+
+Each record retains its physical page, label, extraction method, and bounding box. OCR preserves the printed labels, while vision reconstructs the relationships among those labels and values. The original PDF remains the reference for arrow direction, ambiguous chart labels, and unlabeled values. Visual highlights mark the source region and can cover an entire figure or scan. The [coverage audit](eval/REPORT.md#extraction-coverage) describes the checks and how to rerun them.
+
+### Where Docling and Markdown fit
+
+Docling can export a converted document as Markdown with tables and referenced or embedded images. Its structured document also retains item provenance, and it offers a separate chart-extraction stage. For a future Docling adapter, the structured items and figure crops would feed the index so the UI could still highlight the source. Markdown would be a human-readable export. Converting an image to a Markdown reference alone leaves the plotted values and route relationships inside the image. [Docling export options](https://github.com/docling-project/docling/blob/main/docling/datamodel/service/options.py) · [Docling chart extraction](https://github.com/docling-project/docling/blob/main/docs/usage/vision_models.md)
+
+For this report, the PyMuPDF, RapidOCR, and hosted vision path met the coverage checks and kept the local install small. Docling was considered from its documentation. The measured results are for the shipped pipeline.
+
 ## Evaluation and limitations
 
 The [evaluation report](eval/REPORT.md) compares keyword, hybrid, and graph retrieval on the same questions and scores answer quality and citation coverage separately. The [raw results](eval/results.json) show each answer, citation, and trace. Run the benchmark on the supplied Kirana report. The replacement-PDF test generates a different two-page document with a raster-only second page.

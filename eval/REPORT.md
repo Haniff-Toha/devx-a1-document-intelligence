@@ -2,6 +2,21 @@
 
 The benchmark contains 18 development questions written against the supplied Kirana report. Four are deliberately unanswerable. The other 14 cover prose, native tables, a table spanning pages, an infographic, bar and line charts, a network diagram, a scanned tariff, and an erratum. Expected answers and evidence requirements are in [questions.json](questions.json). [results.json](results.json) contains the responses, quotes, and traces. [ingestion.json](ingestion.json) records the input hash and page coverage.
 
+## Extraction coverage
+
+| Evidence in the source | Verified in the index |
+|---|---:|
+| PDF pages with indexed evidence | 13/13 |
+| Native table rows across five tables | 41/41 |
+| KPI tiles on page 3 | 6/6 |
+| Labeled values across the four charts | 25/25 |
+| Labeled diagram connections on page 7 | 7/7 |
+| Scanned tariff rows and notes on page 13 | 7/7 rows and 2/2 notes |
+
+The table check compares headers and body fingerprints against an independent Poppler text extraction. It also checks that individual indexed rows carry the correct column labels. Visual checks use expectations read from the rendered PDF and look for the labeled values in the indexed vision records. The route check covers endpoints and printed rates. The original drawing shows direction and layout.
+
+The audit caught a blank first header cell in Table 4. The previous parser treated the Scope 1 data row as the header, which lost the year-to-value mapping. The corrected parser retains the 2023–2025 headers and all three rows. The coverage check rejects the old index, and a live question about all three Scope 1 years returned the correct values with a page 9 citation.
+
 ## Retrieval
 
 The four stages use the same ingested corpus. A page hit requires a gold page. An evidence hit requires a snippet on a gold page containing the expected value and its identifying terms. A case is complete when every required evidence group is present. Some cases require two groups. The four unanswerable questions are excluded from retrieval scoring.
@@ -32,14 +47,15 @@ Answer text is scored against the case's value, unit, or wording patterns. Citat
 
 ## Resource use
 
-On the Windows test machine with Python 3.11, the full report produced **154 evidence records** and **792 directed graph links** across all 13 pages. Ingestion took **87.7 seconds** with a sampled peak working set of **439 MiB** across the Python process tree. The installed environment used **289 MiB**, excluding the dependency cache. The index occupied **1.27 MiB**.
+On the Windows test machine with Python 3.11, the audited run produced **154 evidence records** and **794 directed graph links** across all 13 pages. Ingestion took **91.6 seconds**, and the index occupied **1.27 MiB**. An earlier resource profiling run sampled a peak working set of **439 MiB** across the Python process tree and an installed environment of **289 MiB**, excluding the dependency cache.
 
-OpenRouter reported **$0.00817** for the recorded ingestion and **$0.00565** for the evaluation. The evaluation took **74.1 seconds** wall time with three workers and a **2.87-second** median per question after the batch query embedding. These figures describe the recorded runs and vary with document size, agent actions, and provider latency.
+OpenRouter reported **$0.00817** for the recorded ingestion and **$0.00816** for the evaluation. The evaluation took **25.8 seconds** wall time with three workers and a **3.43-second** median per question after the batch query embedding. These figures describe the recorded runs and vary with document size, agent actions, and provider latency.
 
 ## Reproduce
 
 ```powershell
 uv run --locked python -m kirana_rag ingest "Kirana_Logistics_Annual_Report_2025.pdf"
+uv run --locked python -m eval.coverage
 uv run --locked python -m kirana_rag evaluate
 uv run --locked python -m unittest discover -v
 ```
