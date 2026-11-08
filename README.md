@@ -14,12 +14,15 @@ From the repository root in PowerShell, run the first command, then set `OPENROU
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
 uv sync --locked
 uv run --locked python -m kirana_rag ingest "Kirana_Logistics_Annual_Report_2025.pdf"
-uv run --locked python -m kirana_rag ask "How many electric trucks were added in 2025? Explain the conflicting figures." --trace
+uv run --locked python -m kirana_rag web "Kirana_Logistics_Annual_Report_2025.pdf"
 ```
 
-For a second document, repeat `ingest` with its path. Ingest atomically replaces the default index after the new one succeeds. Pass `--index .rag/second.sqlite3` to both `ingest` and `ask` to keep separate indexes. The numbered source is the physical PDF page, starting at 1.
+Open [the local chatbot](http://127.0.0.1:8765) in your browser. Use **Chat** to ask a standalone question and **README** to read this guide. Select a page citation to jump to the physical PDF page and highlight the indexed evidence region. For scans and figures, the highlight can cover the whole image. **Open PDF** opens the original file at the selected page in the browser's PDF viewer.
+
+The HTML interface uses the same agent and index as the CLI. It binds to loopback, and OpenRouter calls use the key on the server. For a second document, ingest it first, then restart the viewer with that PDF. Pass `--index .rag/second.sqlite3` to `ingest` and `web` or `ask` to keep separate indexes. The viewer checks the PDF's hash against the index before showing citations.
 
 ```powershell
+uv run --locked python -m kirana_rag ask "How many electric trucks were added in 2025? Explain the conflicting figures." --trace
 uv run --locked python -m kirana_rag ask "What is the 2026 standard cold-chain pallet storage rate, and does it include VAT?" --json
 uv run --locked python -m kirana_rag ask "What volume discount rate does Schedule C grant for 100 pallets?"
 uv run --locked python -m kirana_rag inspect --page 13
@@ -31,20 +34,11 @@ Use `search "<query>" --mode keyword` for raw BM25 hits and `--mode hybrid` for 
 
 ## Architecture and decisions
 
-```mermaid
-flowchart LR
-    P["Input PDF"] --> L["Native text and table layout"]
-    P --> O["Raster crop and local OCR"]
-    O --> V["OpenRouter vision transcription"]
-    L --> I["SQLite evidence, embeddings and graph"]
-    V --> I
-    O --> I
-    Q["Question"] --> H["BM25 + cosine search"]
-    I --> H
-    H --> A["Bounded OpenRouter agent"]
-    A -->|"Search or follow links"| I
-    A --> C["Citation and number checks"]
-    C --> R["Cited answer or refusal"]
+```text
+PDF → native text, tables, OCR, and vision → SQLite evidence and graph
+Question → BM25 + cosine search → agent searches again or follows links
+Agent draft → quote, number, and claim checks → cited answer or refusal
+Citation → original PDF page and highlighted evidence region
 ```
 
 | Choice | Why |

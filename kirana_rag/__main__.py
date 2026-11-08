@@ -39,7 +39,10 @@ def parser() -> argparse.ArgumentParser:
     evaluate = sub.add_parser("evaluate", help="Run the published A1 benchmark against the current index.")
     evaluate.add_argument("--cases", type=Path, default=Path("eval/questions.json"))
     evaluate.add_argument("--out", type=Path, default=Path(".rag/evaluation.json"))
-    for command in (load, ask, search, inspect, evaluate):
+    web = sub.add_parser("web", help="Serve the local chatbot, README, and citation viewer.")
+    web.add_argument("pdf", type=Path, help="The PDF that was used to build this index.")
+    web.add_argument("--port", type=int, default=8765)
+    for command in (load, ask, search, inspect, evaluate, web):
         command.add_argument("--index", type=Path, default=DEFAULT_INDEX)
     for command in (load, ask, search, inspect):
         command.add_argument("--json", action="store_true", help="Emit structured JSON.")
@@ -75,6 +78,11 @@ def run(args):
         return
 
     index = read_index(args.index)
+    if args.command == "web":
+        from .web import serve
+
+        serve(args.pdf, index, args.port)
+        return
     if args.command == "inspect":
         if args.id:
             if args.id not in index.by_id:

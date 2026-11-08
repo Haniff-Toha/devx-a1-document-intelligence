@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kirana Document Intelligence</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <svg aria-hidden="true" viewBox="0 0 32 32" width="32" height="32">
+          <rect width="32" height="32" rx="8" fill="currentColor"/>
+          <path d="M10 7.5h8l4 4v13H10zM18 7.5v4h4M13 16h6m-6 4h6" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>Kirana <span>Document Intelligence</span></h1>
+      </div>
+      <nav class="view-switch" aria-label="Workbench view">
+        <button id="show-chat" type="button" aria-pressed="true">Chat</button>
+        <button id="show-readme" type="button" aria-pressed="false">README</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div id="chat-view" class="workbench">
+      <section class="panel conversation" aria-labelledby="chat-heading">
+        <header class="panel-header">
+          <h2 id="chat-heading">Ask the report</h2>
+          <p>Check answers against the original PDF.</p>
+        </header>
+        <div class="conversation-scroll" id="conversation-scroll">
+          <div id="welcome" class="welcome">
+            <h3>What would you like to know?</h3>
+            <p>Ask about a figure, a table, or an item in the report. Select a citation to see its evidence on the page.</p>
+            <div class="suggestions" aria-label="Example questions">
+              <button type="button" data-question="How many electric trucks were added in 2025? Explain the conflicting figures.">Which electric truck count is correct?</button>
+              <button type="button" data-question="What is the 2026 standard cold-chain pallet storage rate, and does it include VAT?">What does cold-chain storage cost?</button>
+              <button type="button" data-question="What volume discount rate does Schedule C grant for storing 100 cold-chain pallets?">What discount does Schedule C offer?</button>
+            </div>
+          </div>
+          <div id="transcript" role="log" aria-label="Conversation" aria-live="polite"></div>
+        </div>
+        <form id="question-form" class="composer">
+          <label for="question">Ask a question</label>
+          <div class="compose-row">
+            <textarea id="question" name="question" rows="2" maxlength="800" required placeholder="What was Kirana’s 2025 revenue?"></textarea>
+            <button class="primary" id="ask" type="submit" disabled>Ask</button>
+          </div>
+          <p id="chat-status" role="status">Loading the report…</p>
+        </form>
+      </section>
+
+      <section class="panel evidence" id="evidence-panel" aria-labelledby="evidence-heading">
+        <header class="panel-header">
+          <h2 id="evidence-heading">Source PDF</h2>
+          <p id="document-name">Loading document…</p>
+        </header>
+        <div class="pdf-toolbar" aria-label="PDF page controls">
+          <button id="previous-page" type="button" disabled>Previous</button>
+          <span id="page-number" role="status">Page —</span>
+          <button id="next-page" type="button" disabled>Next</button>
+          <a id="open-pdf" href="/source.pdf" target="_blank" rel="noopener" hidden>Open PDF</a>
+        </div>
+        <div class="citation-details" id="citation-details" hidden>
+          <h3 id="citation-title"></h3>
+          <blockquote id="citation-quote"></blockquote>
+        </div>
+        <div class="pdf-scroll" id="pdf-scroll" tabindex="0" aria-label="PDF page preview">
+          <p id="preview-message" role="status">Loading page preview…</p>
+          <div id="paper" class="paper" hidden>
+            <img id="page-image" alt="">
+            <div id="highlight" class="highlight" aria-hidden="true" hidden></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section id="readme-view" class="panel readme-panel" aria-label="Project documentation" hidden>
+      <iframe id="readme" title="Project documentation"></iframe>
+    </section>
+  </main>
+</body>
+</html>
