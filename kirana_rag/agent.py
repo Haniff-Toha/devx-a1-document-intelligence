@@ -10,7 +10,7 @@ from decimal import Decimal
 import numpy as np
 
 from .evidence import Evidence
-from .openrouter import STRING, OpenRouter, object_schema
+from .llm_provider import STRING, LLMProvider, object_schema
 from .retrieval import Index
 
 SEED_COUNT = 7
@@ -132,7 +132,7 @@ def seed_evidence(index: Index, question: str, vector: np.ndarray) -> tuple[list
 
 
 class Agent:
-    def __init__(self, index: Index, client: OpenRouter):
+    def __init__(self, index: Index, client: LLMProvider):
         if index.metadata["embedding_model"] != client.embed_model:
             raise ValueError("Embedding model differs from the index. Re-ingest the PDF with this model.")
         self.index = index

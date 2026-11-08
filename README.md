@@ -6,22 +6,50 @@
 
 ## Run it
 
-Use [uv](https://docs.astral.sh/uv/getting-started/installation/), Python 3.11–3.13, and an [OpenRouter key](https://openrouter.ai/keys) with credits. Save the supplied annual report as `Kirana_Logistics_Annual_Report_2025.pdf` in the repository root or point the ingest command at its location.
+Use [uv](https://docs.astral.sh/uv/getting-started/installation/), Python 3.11–3.13, and a model provider key. The sample settings use [OpenRouter](https://openrouter.ai/keys). Save the supplied PDF in the repository root or update `PDF_PATH` in `.env`.
 
-From the repository root in PowerShell, run the first command, then set `OPENROUTER_API_KEY` in the resulting `.env` before ingesting. Git ignores the key, original PDF, and generated index.
+From the repository root in PowerShell, run the first command, then set `LLM_API_KEY` in `.env` before ingesting. For an existing checkout, copy the settings from `.env.example` into your local `.env` and put your existing key in `LLM_API_KEY`. The existing index works with the configured embedding model.
 
 ```powershell
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
 uv sync --locked
-uv run --locked python -m kirana_rag ingest "Kirana_Logistics_Annual_Report_2025.pdf"
-uv run --locked python -m kirana_rag web "Kirana_Logistics_Annual_Report_2025.pdf"
+uv run --locked python -m kirana_rag ingest
+uv run --locked python -m kirana_rag web
 ```
 
-Open [the local chatbot](http://127.0.0.1:8765) in your browser. Use **Chat** to ask a standalone question and **README** to read this guide. Try **What charts are in this PDF?** or **Show the quarterly revenue chart**. The viewer finds visuals in the index and displays original PDF crops inline. Select a crop or citation to see its highlighted region on the source page. On smaller screens this switches to the **PDF** tab. **Open PDF** opens the original file at the selected page.
+Open [the local chatbot](http://127.0.0.1:8765) in your browser. The `web` command starts the FastAPI backend and serves the plain HTML, CSS, and JavaScript together at `BACKEND_BASE_URL`. Try **Is there anychart on the documents?** or **Show the quarterly revenue chart**. The viewer finds visuals in the index and displays original PDF crops inline. Select a crop or citation to highlight its source. On mobile the PDF sits below the chat and selecting a citation scrolls to it.
 
 The HTML interface uses the same agent and index as the CLI. Chart inventory and display requests look up indexed figure groups locally. Questions about the values in a chart still go through retrieval and citation review. The browser reads newline-delimited JSON from `POST /api/ask/stream` and displays progress as the server searches, follows evidence links, and checks claims. Answer text appears after verification. **Stop** closes the browser stream. An in-flight provider request can still finish.
 
-The viewer binds to loopback, and OpenRouter calls use the key on the server. For a second document, ingest it first, then restart the viewer with that PDF. Pass `--index .rag/second.sqlite3` to `ingest` and `web` or `ask` to keep separate indexes. The viewer checks the PDF's hash against the index before showing citations.
+### Run the backend and frontend separately
+
+After setup and ingestion, run the backend in one terminal.
+
+```powershell
+uv run --locked python -m kirana_rag web
+```
+
+Run the frontend in a second terminal.
+
+```powershell
+uv run --locked python -m kirana_rag frontend
+```
+
+Open [the standalone frontend](http://127.0.0.1:8766), or use your configured `FRONTEND_BASE_URL`. It gets the public backend URL from `/config.json`. FastAPI accepts requests from that configured frontend origin. The [API schema](http://127.0.0.1:8765/api/openapi.json) is available on the backend.
+
+### Configuration in `.env`
+
+| Setting | Purpose |
+|---|---|
+| `LLM_BASE_URL` and `LLM_API_KEY` | Model API base URL and server-side credential. The API should support chat completions and embeddings. |
+| `LLM_CHAT_MODEL` | Text model for agent actions, answer drafting, and claim review. |
+| `LLM_VISION_MODEL` | Multimodal model for reading charts, figures, and scans. |
+| `LLM_EMBED_MODEL` | Embedding model for indexing and query similarity. Re-ingest after changing it. |
+| `LLM_CHAT_OPTIONS` | Optional JSON object for gateway request options. Use `{}` if your gateway needs none. |
+| `BACKEND_BASE_URL` and `FRONTEND_BASE_URL` | Local HTTP addresses with explicit ports. The example uses ports 8765 and 8766. |
+| `PDF_PATH` and `INDEX_PATH` | Local source PDF and generated SQLite index. |
+
+Git ignores the local `.env`, original PDF, and generated index. The viewer checks the PDF hash before showing citations. For a second document, change `PDF_PATH`, ingest it, and restart the backend. To keep both indexes, also give the second document a different `INDEX_PATH`.
 
 ```powershell
 uv run --locked python -m kirana_rag ask "How many electric trucks were added in 2025? Explain the conflicting figures." --trace

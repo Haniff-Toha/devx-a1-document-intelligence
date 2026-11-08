@@ -1,4 +1,4 @@
-"""Audit the indexed evidence for the supplied Kirana PDF without calling OpenRouter."""
+"""Audit the indexed evidence for the supplied Kirana PDF locally."""
 
 import argparse
 import hashlib
@@ -66,7 +66,7 @@ def check(path: Path) -> list[str]:
 
     visual_records: dict[int, list[str]] = {}
     for item in index.items:
-        if item.method == "openrouter_vision":
+        if item.method == "vision":
             statement = item.text.partition("\nVisible labels:")[0]
             record = re.sub(r"(?<=\d),(?=\d{3}\b)", "", f"{item.label} | {statement}")
             visual_records.setdefault(item.page, []).append(record)

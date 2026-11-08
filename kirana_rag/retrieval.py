@@ -15,7 +15,7 @@ import numpy as np
 
 from .evidence import Edge, Evidence
 from .ingest import Document
-from .openrouter import OpenRouter
+from .llm_provider import LLMProvider
 
 TOKEN = re.compile(r"[^\W_]+(?:[-.][^\W_]+)*", re.UNICODE)
 QUARTER = re.compile(r"\b(first|second|third|fourth)[ -]+quarter\b")
@@ -98,7 +98,7 @@ def build_edges(items: list[Evidence]) -> list[Edge]:
                 if member.kind != "visual_note":
                     for note in notes:
                         link(member, note, "figure_note", "same_figure")
-                if member.method == "openrouter_vision":
+                if member.method == "vision":
                     for scan in scans:
                         link(member, scan, "scan_transcript", "same_figure")
     for members in by_identifier.values():
@@ -220,7 +220,7 @@ class Index:
         return chosen
 
 
-def write_index(path: Path, document: Document, client: OpenRouter | None) -> dict:
+def write_index(path: Path, document: Document, client: LLMProvider | None) -> dict:
     edges = build_edges(document.evidence)
     vectors = client.embed([item.searchable for item in document.evidence]) if client else None
     metadata = {
@@ -268,4 +268,10 @@ def read_index(path: Path) -> Index:
     vectors = np.stack([np.frombuffer(row[1], dtype="<f4") for row in rows]) if metadata[
         "embedding_dimensions"
     ] else None
-    return Index(metadata, [Evidence(**json.loads(payload)) for payload, _ in rows], edges, vectors)
+    items = []
+    for payload, _ in rows:
+        item = json.loads(payload)
+        if item.get("method", "").endswith("_vision"):
+            item["method"] = "vision"
+        items.append(Evidence(**item))
+    return Index(metadata, items, edges, vectors)

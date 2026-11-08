@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 from kirana_rag.agent import Agent, validate_claims
 from kirana_rag.evidence import Edge, Evidence
 from kirana_rag.ingest import ingest
-from kirana_rag.openrouter import OpenRouter, OpenRouterError
+from kirana_rag.llm_provider import LLMProvider, ProviderError
 from kirana_rag.retrieval import Index, build_edges, read_index, write_index
 
 BOX = (10, 10, 100, 20)
@@ -140,18 +140,18 @@ class AgentTests(unittest.TestCase):
         self.assertIn({"action": "review_claims", "verdict": "incorrect"}, response["trace"])
 
 
-class OpenRouterTests(unittest.TestCase):
+class ProviderTests(unittest.TestCase):
     def test_embedding_response_order_is_restored_and_normalized(self):
-        client = OpenRouter("test", "test", "test")
+        client = LLMProvider("test", "test", "test", base_url="https://example.test/v1")
         client._post = lambda *_: {"data": [
             {"index": 1, "embedding": [0, 3]}, {"index": 0, "embedding": [2, 0]}
         ]}
         np.testing.assert_array_equal(client.embed(["first", "second"]), np.eye(2))
 
     def test_missing_embedding_rows_are_rejected(self):
-        client = OpenRouter("test", "test", "test")
+        client = LLMProvider("test", "test", "test", base_url="https://example.test/v1")
         client._post = lambda *_: {"data": [{"index": 1, "embedding": [0, 3]}]}
-        with self.assertRaises(OpenRouterError):
+        with self.assertRaises(ProviderError):
             client.embed(["first", "second"])
 
 

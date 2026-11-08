@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kirana Document Intelligence</title>
-  <link rel="stylesheet" href="/assets/styles.css">
-  <script src="/assets/app.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -19,14 +19,13 @@
       </div>
       <nav class="view-switch" aria-label="Workbench view">
         <button id="show-chat" type="button" aria-pressed="true">Chat</button>
-        <button id="show-source" type="button" aria-pressed="false">PDF</button>
         <button id="show-readme" type="button" aria-pressed="false">README</button>
       </nav>
     </div>
   </header>
 
   <main>
-    <div id="chat-view" class="workbench" data-panel="chat">
+    <div id="chat-view" class="workbench">
       <section class="panel conversation" aria-labelledby="chat-heading">
         <header class="panel-header">
           <h2 id="chat-heading">Ask the report</h2>

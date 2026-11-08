@@ -1,20 +1,28 @@
 """Loopback-only chat and citation viewer for an already indexed PDF."""
 
+import asyncio
 import hashlib
 import json
-import re
+import logging
+import os
 from collections.abc import Callable
 from functools import lru_cache
 from html import escape
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from threading import Event
+from urllib.parse import SplitResult, urlsplit
 
 import pymupdf
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from markdown_it import MarkdownIt
 
 from .agent import Agent
-from .openrouter import OpenRouter, OpenRouterError
+from .llm_provider import LLMProvider, ProviderError
 from .retrieval import Index
 from .visuals import Visual, catalog, mentions_visual, requested_visuals
 
@@ -26,14 +34,18 @@ DOCUMENTS = {
     )
 }
 STATIC = {
-    "/": ("index.html", "text/html; charset=utf-8"),
-    "/assets/styles.css": ("styles.css", "text/css; charset=utf-8"),
-    "/assets/app.js": ("app.js", "text/javascript; charset=utf-8"),
+    "index.html": "text/html",
+    "styles.css": "text/css",
+    "app.js": "text/javascript",
 }
-PAGE_ROUTE = re.compile(r"/api/pages/([1-9][0-9]{0,8})")
-VISUAL_ROUTE = re.compile(r"/api/visuals/(visual-[1-9][0-9]*-[1-9][0-9]*)")
-CSP = ("default-src 'self'; object-src 'none'; base-uri 'none'; "
-       "frame-ancestors 'self'; form-action 'self'")
+QUESTION_BODY = {"requestBody": {
+    "required": True,
+    "content": {"application/json": {"schema": {
+        "type": "object", "required": ["question"],
+        "properties": {"question": {"type": "string", "minLength": 1, "maxLength": 800}},
+    }}},
+}}
+logger = logging.getLogger(__name__)
 
 
 def render_markdown(path: Path) -> bytes:
@@ -54,7 +66,7 @@ def render_markdown(path: Path) -> bytes:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{escape(path.stem)} · Kirana Document Intelligence</title>
-  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body class="doc-body"><article class="doc-content">{body}</article></body>
 </html>""".encode()
@@ -118,7 +130,7 @@ class Workbench:
                 "claims": [{"statement": f"I found {len(direct)} matching {noun} in the PDF.",
                             "citations": [crop["citation"] for crop in crops]}],
             }
-        result = Agent(self.index, OpenRouter.from_env()).answer(question, progress=progress)
+        result = Agent(self.index, LLMProvider.from_env()).answer(question, progress=progress)
         selected = {}
         with pymupdf.open(stream=self.pdf, filetype="pdf") as document:
             for claim in result["claims"]:
@@ -150,136 +162,194 @@ class Workbench:
         return cards
 
 
-class Handler(BaseHTTPRequestHandler):
-    def _send(self, body: bytes, content_type: str, status: int = 200, **headers: str):
-        self.send_response(status)
-        self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(body)))
-        self.send_header("Content-Security-Policy", CSP)
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Cache-Control", "no-store")
-        for name, value in headers.items():
-            self.send_header(name, value)
-        self.end_headers()
-        self.wfile.write(body)
+async def read_question(request: Request, frontend_origin: str) -> str:
+    origin = request.headers.get("origin")
+    if origin not in {f"{request.url.scheme}://{request.url.netloc}", frontend_origin}:
+        raise HTTPException(403, "Questions must come from the local chatbot.")
+    if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+        raise HTTPException(415, "Send the question as JSON.")
+    body = bytearray()
+    async for chunk in request.stream():
+        if len(body) + len(chunk) > 8000:
+            raise HTTPException(400, "Enter a question between 1 and 800 characters.")
+        body.extend(chunk)
+    try:
+        data = json.loads(body)
+    except (ValueError, UnicodeError):
+        raise HTTPException(400, "Send a valid question as JSON.") from None
+    question = data.get("question") if isinstance(data, dict) else None
+    if not isinstance(question, str) or not 1 <= len(question.strip()) <= 800:
+        raise HTTPException(400, "Enter a question between 1 and 800 characters.")
+    return question.strip()
 
-    def _json(self, value: dict, status: int = 200):
-        self._send(json.dumps(value).encode(), "application/json; charset=utf-8", status)
 
-    def _local(self) -> bool:
-        if self.headers.get("Host") != self.server.authority:
-            self._json({"error": "Open the server at its 127.0.0.1 address."}, 403)
-            return False
-        return True
+class StreamClosed(Exception):
+    pass
 
-    def do_GET(self):
-        if not self._local():
-            return
-        path = urlsplit(self.path).path
-        workbench = self.server.workbench
-        if path in STATIC:
-            filename, content_type = STATIC[path]
-            self._send((ASSETS / filename).read_bytes(), content_type)
-        elif path == "/api/document":
-            self._json({"name": workbench.name, "pages": workbench.pages})
-        elif path == "/source.pdf":
-            self._send(workbench.pdf, "application/pdf", **{"Content-Disposition": "inline"})
-        elif match := PAGE_ROUTE.fullmatch(path):
-            number = int(match[1])
-            if number > workbench.pages:
-                self._json({"error": "This page is outside the PDF."}, 404)
-                return
-            self._send(workbench.page_png(number), "image/png")
-        elif (match := VISUAL_ROUTE.fullmatch(path)) and match[1] in workbench.visuals:
-            try:
-                self._send(workbench.visual_png(match[1]), "image/png")
-            except ValueError:
-                self._json({"error": "This visual could not be rendered."}, 404)
-        elif path in DOCUMENTS:
-            document = DOCUMENTS[path]
-            if document.suffix == ".md":
-                self._send(render_markdown(document), "text/html; charset=utf-8")
-            else:
-                self._send(document.read_bytes(), "application/json; charset=utf-8")
-        else:
-            self._json({"error": "Page not found."}, 404)
 
-    def do_POST(self):
-        if not self._local():
-            return
-        path = urlsplit(self.path).path
-        if path not in {"/api/ask", "/api/ask/stream"}:
-            self._json({"error": "Page not found."}, 404)
-            return
-        if self.headers.get("Origin") != f"http://{self.server.authority}":
-            self._json({"error": "Questions must come from the local chatbot."}, 403)
-            return
-        if self.headers.get_content_type() != "application/json":
-            self._json({"error": "Send the question as JSON."}, 415)
-            return
+async def answer_events(workbench: Workbench, question: str):
+    loop = asyncio.get_running_loop()
+    events = asyncio.Queue()
+    closed = Event()
+
+    def emit(event: str, **fields):
+        if closed.is_set():
+            raise StreamClosed
+        loop.call_soon_threadsafe(events.put_nowait, {"type": event, **fields})
+
+    def produce():
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            if not 1 <= length <= 8000:
-                raise ValueError
-            data = json.loads(self.rfile.read(length))
-            question = data.get("question") if isinstance(data, dict) else None
-            if not isinstance(question, str) or not 1 <= len(question.strip()) <= 800:
-                raise ValueError
-        except (ValueError, UnicodeError):
-            self._json({"error": "Enter a question between 1 and 800 characters."}, 400)
-            return
-        if path.endswith("/stream"):
-            self._stream_answer(question)
-            return
-        try:
-            result = self.server.workbench.ask(question)
-        except OpenRouterError as exc:
-            self._json({"error": str(exc)}, 502)
-            return
-        except ValueError as exc:
-            self._json({"error": str(exc)}, 409)
-            return
-        self._json(result)
-
-    def _stream_answer(self, question: str):
-        self.send_response(200)
-        self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
-        self.send_header("X-Content-Type-Options", "nosniff")
-        self.send_header("Cache-Control", "no-store")
-        self.send_header("Connection", "close")
-        self.end_headers()
-        self.close_connection = True
-
-        def emit(event: str, **fields):
-            self.wfile.write(json.dumps({"type": event, **fields}).encode() + b"\n")
-            self.wfile.flush()
-
-        try:
-            try:
-                result = self.server.workbench.ask(question, progress=lambda stage: emit("progress", stage=stage))
-            except (OpenRouterError, ValueError) as exc:
-                emit("error", message=str(exc))
-                return
+            result = workbench.ask(question, progress=lambda stage: emit("progress", stage=stage))
             emit("answer", status=result["status"], message=result["message"], catalog=result.get("catalog", False))
             for claim in result["claims"]:
                 emit("claim", claim=claim)
             if result["visuals"]:
                 emit("visuals", visuals=result["visuals"])
             emit("done")
-        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+        except StreamClosed:
             pass
+        except (ProviderError, ValueError) as exc:
+            if not closed.is_set():
+                emit("error", message=str(exc))
+        except Exception:
+            logger.exception("Chat answer failed")
+            if not closed.is_set():
+                emit("error", message="The local server could not complete the answer.")
+        finally:
+            if not closed.is_set():
+                loop.call_soon_threadsafe(events.put_nowait, None)
+
+    worker = asyncio.create_task(asyncio.to_thread(produce))
+    try:
+        while (event := await events.get()) is not None:
+            yield json.dumps(event).encode() + b"\n"
+        await worker
+    finally:
+        closed.set()
+        worker.cancel()
 
 
-class Server(ThreadingHTTPServer):
-    def __init__(self, workbench: Workbench, port: int):
-        super().__init__(("127.0.0.1", port), Handler)
-        self.authority = f"127.0.0.1:{self.server_port}"
-        self.workbench = workbench
+def create_app(workbench: Workbench, frontend_origin: str) -> FastAPI:
+    app = FastAPI(title="Kirana Document Intelligence", docs_url=None, redoc_url=None,
+                  openapi_url="/api/openapi.json")
+    app.add_middleware(
+        CORSMiddleware, allow_origins=[frontend_origin],
+        allow_methods=["GET", "POST"], allow_headers=["Content-Type"],
+    )
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
+
+    @app.middleware("http")
+    async def response_headers(request: Request, call_next):
+        response = await call_next(request)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; object-src 'none'; base-uri 'none'; "
+            f"frame-ancestors 'self' {frontend_origin}; form-action 'self'"
+        )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    @app.exception_handler(HTTPException)
+    async def api_error(_request: Request, exc: HTTPException):
+        return JSONResponse({"error": exc.detail}, status_code=exc.status_code)
+
+    @app.get("/", include_in_schema=False)
+    def home():
+        return FileResponse(ASSETS / "index.html", media_type=STATIC["index.html"])
+
+    @app.get("/config.json", include_in_schema=False)
+    def frontend_config():
+        return {"apiBaseUrl": ""}
+
+    @app.get("/api/document")
+    def document():
+        return {"name": workbench.name, "pages": workbench.pages}
+
+    @app.get("/source.pdf", response_class=Response)
+    def source_pdf():
+        return Response(workbench.pdf, media_type="application/pdf",
+                        headers={"Content-Disposition": "inline"})
+
+    @app.get("/api/pages/{number}", response_class=Response)
+    def page(number: int):
+        if not 1 <= number <= workbench.pages:
+            raise HTTPException(404, "This page is outside the PDF.")
+        return Response(workbench.page_png(number), media_type="image/png")
+
+    @app.get("/api/visuals/{identifier}", response_class=Response)
+    def visual(identifier: str):
+        if identifier not in workbench.visuals:
+            raise HTTPException(404, "This visual is outside the indexed PDF.")
+        try:
+            return Response(workbench.visual_png(identifier), media_type="image/png")
+        except ValueError:
+            raise HTTPException(404, "This visual could not be rendered.") from None
+
+    @app.get("/docs/{name:path}", include_in_schema=False)
+    def docs(name: str):
+        path = DOCUMENTS.get(f"/docs/{name}")
+        if path is None:
+            raise HTTPException(404, "Document not found.")
+        if path.suffix == ".md":
+            return HTMLResponse(render_markdown(path))
+        return FileResponse(path, media_type="application/json")
+
+    @app.post("/api/ask", openapi_extra=QUESTION_BODY)
+    async def ask(request: Request):
+        question = await read_question(request, frontend_origin)
+        try:
+            return await asyncio.to_thread(workbench.ask, question)
+        except ProviderError as exc:
+            raise HTTPException(502, str(exc)) from None
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from None
+
+    @app.post("/api/ask/stream", response_class=StreamingResponse, openapi_extra=QUESTION_BODY)
+    async def stream(request: Request):
+        question = await read_question(request, frontend_origin)
+        return StreamingResponse(answer_events(workbench, question), media_type="application/x-ndjson")
+
+    @app.get("/assets/{name}", include_in_schema=False)
+    @app.get("/{name}", include_in_schema=False)
+    def asset(name: str):
+        if name not in STATIC:
+            raise HTTPException(404, "Page not found.")
+        return FileResponse(ASSETS / name, media_type=STATIC[name])
+
+    return app
 
 
-def serve(pdf: Path, index: Index, port: int):
+def local_url(name: str) -> SplitResult:
+    try:
+        parsed = urlsplit(os.getenv(name, "").strip().rstrip("/"))
+        if (parsed.scheme == "http" and parsed.hostname in {"127.0.0.1", "localhost"}
+                and parsed.port and not parsed.username and not parsed.password
+                and not parsed.path and not parsed.query and not parsed.fragment):
+            return parsed
+    except ValueError:
+        pass
+    raise ValueError(f"Set {name} in .env to a local HTTP URL with an explicit port.")
+
+
+def serve(pdf: Path, index: Index, port: int | None):
+    backend = local_url("BACKEND_BASE_URL")
+    frontend = local_url("FRONTEND_BASE_URL")
+    port = backend.port if port is None else port
     if not 0 <= port <= 65535:
         raise ValueError("Use a port between 0 and 65535.")
-    with Server(Workbench(pdf, index), port) as server:
-        print(f"Kirana chatbot at http://{server.authority}", flush=True)
-        server.serve_forever()
+    app = create_app(Workbench(pdf, index), frontend.geturl())
+    uvicorn.run(app, host=backend.hostname, port=port, proxy_headers=False)
+
+
+def serve_frontend():
+    backend = local_url("BACKEND_BASE_URL")
+    frontend = local_url("FRONTEND_BASE_URL")
+    app = FastAPI(openapi_url=None, docs_url=None, redoc_url=None)
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["127.0.0.1", "localhost"])
+
+    @app.get("/config.json")
+    def frontend_config():
+        return JSONResponse({"apiBaseUrl": backend.geturl()}, headers={"Cache-Control": "no-store"})
+
+    app.mount("/", StaticFiles(directory=ASSETS, html=True))
+    uvicorn.run(app, host=frontend.hostname, port=frontend.port, proxy_headers=False)

@@ -1,17 +1,18 @@
-"""Small OpenRouter client with a bounded retry and redacted error messages."""
+"""Client for embeddings, structured chat, and vision with bounded retries."""
 
 import base64
 import json
 import os
 import time
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 import numpy as np
 from dotenv import load_dotenv
 
 
-class OpenRouterError(RuntimeError):
+class ProviderError(RuntimeError):
     pass
 
 
@@ -36,10 +37,15 @@ VISUAL_SCHEMA = object_schema(
 )
 
 
-class OpenRouter:
-    base_url = "https://openrouter.ai/api/v1"
-
-    def __init__(self, key: str, chat_model: str, embed_model: str, vision_model: str | None = None):
+class LLMProvider:
+    def __init__(self, key: str, chat_model: str, embed_model: str, vision_model: str | None = None,
+                 *, base_url: str, chat_options: dict | None = None):
+        self.base_url = base_url.strip().rstrip("/")
+        endpoint = urlsplit(self.base_url)
+        local = endpoint.hostname in {"localhost", "127.0.0.1", "::1"}
+        if not endpoint.hostname or endpoint.scheme not in ({"http", "https"} if local else {"https"}):
+            raise ValueError("LLM_BASE_URL must use HTTPS or a local HTTP endpoint.")
+        self.chat_options = dict(chat_options or {})
         self.key = key
         self.chat_model = chat_model
         self.embed_model = embed_model
@@ -49,16 +55,23 @@ class OpenRouter:
         self.cost_reported = 0
 
     @classmethod
-    def from_env(cls) -> "OpenRouter":
+    def from_env(cls) -> "LLMProvider":
         load_dotenv()
-        key = os.getenv("OPENROUTER_API_KEY", "").strip()
-        if not key:
-            raise OpenRouterError("Set OPENROUTER_API_KEY in .env or the environment.")
+        names = ("LLM_API_KEY", "LLM_BASE_URL", "LLM_CHAT_MODEL", "LLM_EMBED_MODEL", "LLM_VISION_MODEL")
+        settings = {name: os.getenv(name, "").strip() for name in names}
+        missing = [name for name, value in settings.items() if not value]
+        if missing:
+            raise ProviderError(f"Set {', '.join(missing)} in .env or the environment.")
+        try:
+            options = json.loads(os.getenv("LLM_CHAT_OPTIONS") or "{}")
+            if not isinstance(options, dict):
+                raise ValueError
+        except ValueError:
+            raise ProviderError("LLM_CHAT_OPTIONS must be a JSON object.") from None
         return cls(
-            key,
-            os.getenv("OPENROUTER_CHAT_MODEL") or "google/gemini-2.5-flash-lite",
-            os.getenv("OPENROUTER_EMBED_MODEL") or "openai/text-embedding-3-small",
-            os.getenv("OPENROUTER_VISION_MODEL") or "google/gemini-3.1-flash-lite",
+            settings["LLM_API_KEY"], settings["LLM_CHAT_MODEL"],
+            settings["LLM_EMBED_MODEL"], settings["LLM_VISION_MODEL"],
+            base_url=settings["LLM_BASE_URL"], chat_options=options,
         )
 
     def _post(self, path: str, body: dict) -> dict:
@@ -68,7 +81,6 @@ class OpenRouter:
             headers={
                 "Authorization": f"Bearer {self.key}",
                 "Content-Type": "application/json",
-                "X-OpenRouter-Title": "Kirana Document Intelligence",
             },
             method="POST",
         )
@@ -77,7 +89,7 @@ class OpenRouter:
                 with urlopen(request, timeout=45) as response:
                     result = json.load(response)
                 if not isinstance(result, dict) or "error" in result:
-                    raise OpenRouterError(f"OpenRouter {path} returned an error payload.")
+                    raise ProviderError(f"Model provider {path} returned an error payload.")
                 usage = result.get("usage") or {}
                 cost = usage.get("cost")
                 if isinstance(cost, (int, float)):
@@ -89,14 +101,14 @@ class OpenRouter:
                     delay = exc.headers.get("Retry-After", "")
                     time.sleep(min(int(delay), 30) if delay.isdigit() else (2, 7)[attempt])
                     continue
-                raise OpenRouterError(f"OpenRouter {path} returned HTTP {exc.code}.") from None
+                raise ProviderError(f"Model provider {path} returned HTTP {exc.code}.") from None
             except (TimeoutError, URLError):
                 if attempt < 2:
                     time.sleep((2, 7)[attempt])
                     continue
-                raise OpenRouterError(f"OpenRouter {path} could not be reached.") from None
+                raise ProviderError(f"Model provider {path} could not be reached.") from None
             except (json.JSONDecodeError, UnicodeError):
-                raise OpenRouterError(f"OpenRouter {path} returned invalid JSON.") from None
+                raise ProviderError(f"Model provider {path} returned invalid JSON.") from None
         raise AssertionError("Retry loop exhausted")
 
     def embed(self, texts: list[str]) -> np.ndarray:
@@ -113,22 +125,23 @@ class OpenRouter:
                     raise ValueError("Embedding indices differ from inputs.")
                 vectors.extend(item["embedding"] for item in data)
             except (TypeError, KeyError, ValueError):
-                raise OpenRouterError("OpenRouter returned invalid embedding rows.") from None
+                raise ProviderError("Model provider returned invalid embedding rows.") from None
         try:
             matrix = np.asarray(vectors, dtype=np.float32)
         except (TypeError, ValueError):
-            raise OpenRouterError("OpenRouter returned inconsistent embedding dimensions.") from None
+            raise ProviderError("Model provider returned inconsistent embedding dimensions.") from None
         if matrix.ndim != 2 or not matrix.shape[1] or not np.isfinite(matrix).all():
-            raise OpenRouterError("OpenRouter returned invalid embedding values.")
+            raise ProviderError("Model provider returned invalid embedding values.")
         norms = np.linalg.norm(matrix, axis=1, keepdims=True)
         if np.any(norms == 0) or not np.isfinite(norms).all():
-            raise OpenRouterError("OpenRouter returned an invalid embedding norm.")
+            raise ProviderError("Model provider returned an invalid embedding norm.")
         return matrix / norms
 
     def structured(self, instruction: str, content: str | list, schema: dict, *,
                    name: str, max_tokens: int, model: str | None = None) -> dict:
         self.calls["chat"] += 1
-        response = self._post("/chat/completions", {
+        body = {
+            **self.chat_options,
             "model": model or self.chat_model,
             "messages": [
                 {"role": "system", "content": instruction},
@@ -136,12 +149,12 @@ class OpenRouter:
             ],
             "temperature": 0,
             "max_tokens": max_tokens,
-            "provider": {"require_parameters": True},
             "response_format": {
                 "type": "json_schema",
                 "json_schema": {"name": name, "strict": True, "schema": schema},
             },
-        })
+        }
+        response = self._post("/chat/completions", body)
         try:
             choice = response["choices"][0]
             if choice.get("finish_reason") in {"length", "content_filter", "error"}:
@@ -151,7 +164,7 @@ class OpenRouter:
                 return result
         except (IndexError, KeyError, TypeError, ValueError):
             pass
-        raise OpenRouterError(f"OpenRouter returned no usable {name} result.")
+        raise ProviderError(f"Model provider returned no usable {name} result.")
 
     def read_figure(self, image: bytes) -> dict:
         return self.structured(

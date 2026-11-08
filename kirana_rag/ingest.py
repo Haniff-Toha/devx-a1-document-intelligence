@@ -12,7 +12,7 @@ import pymupdf
 from PIL import Image
 
 from .evidence import Evidence
-from .openrouter import OpenRouter, OpenRouterError
+from .llm_provider import LLMProvider, ProviderError
 
 CAPTION = re.compile(r"^(?:Table|Figure|Exhibit)\s+[\w.:-]+\b", re.I)
 TABLE = re.compile(r"^Table\s+[\w.:-]+\b", re.I)
@@ -223,7 +223,7 @@ def ocr_rows(result: list) -> str:
 
 
 def image_evidence(page: pymupdf.Page, blocks: list[dict], output: PageEvidence,
-                   section: str, ocr, client: OpenRouter | None):
+                   section: str, ocr, client: LLMProvider | None):
     image_boxes = {}
     for image in page.get_image_info():
         box = pymupdf.Rect(image["bbox"]) & page.rect
@@ -254,7 +254,7 @@ def image_evidence(page: pymupdf.Page, blocks: list[dict], output: PageEvidence,
             continue
         try:
             visual = client.read_figure(png)
-        except OpenRouterError as exc:
+        except ProviderError as exc:
             output.notes.append(f"{label}: vision unavailable; retained local OCR if readable. {exc}")
             continue
         visual_label = label if not isinstance(visual.get("label"), str) else visual["label"].strip() or label
@@ -282,10 +282,10 @@ def image_evidence(page: pymupdf.Page, blocks: list[dict], output: PageEvidence,
                     parts.append(f"Visible header: {context}")
                 output.add(record_kind, region_section or visual_label, f"{visual_label} / {title}",
                            "\n".join(parts), box, group=group,
-                           method="openrouter_vision")
+                           method="vision")
 
 
-def ingest(path: Path, client: OpenRouter | None = None) -> Document:
+def ingest(path: Path, client: LLMProvider | None = None) -> Document:
     from rapidocr_onnxruntime import RapidOCR
 
     pdf_bytes = path.read_bytes()

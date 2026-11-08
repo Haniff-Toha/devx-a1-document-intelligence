@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import sqlite3
 import sys
 from dataclasses import asdict
@@ -7,10 +8,11 @@ from pathlib import Path
 from time import perf_counter
 
 import pymupdf
+from dotenv import load_dotenv
 
 from .agent import Agent
 from .ingest import ingest
-from .openrouter import OpenRouter, OpenRouterError
+from .llm_provider import LLMProvider, ProviderError
 from .retrieval import read_index, write_index
 
 DEFAULT_INDEX = Path(".rag/index.sqlite3")
@@ -24,7 +26,7 @@ def parser() -> argparse.ArgumentParser:
     cli = argparse.ArgumentParser(description="Ask citation-grounded questions about a PDF.")
     sub = cli.add_subparsers(dest="command", required=True)
     load = sub.add_parser("ingest", help="Process a PDF and atomically replace an index.")
-    load.add_argument("pdf", type=Path)
+    load.add_argument("pdf", type=Path, nargs="?", help="Defaults to PDF_PATH from .env.")
     load.add_argument("--local-only", action="store_true", help="Native PDF + OCR; keyword search only.")
     ask = sub.add_parser("ask", help="Answer a question with the Graph RAG agent.")
     ask.add_argument("question")
@@ -39,11 +41,12 @@ def parser() -> argparse.ArgumentParser:
     evaluate = sub.add_parser("evaluate", help="Run the published A1 benchmark against the current index.")
     evaluate.add_argument("--cases", type=Path, default=Path("eval/questions.json"))
     evaluate.add_argument("--out", type=Path, default=Path(".rag/evaluation.json"))
-    web = sub.add_parser("web", help="Serve the local chatbot, README, and citation viewer.")
-    web.add_argument("pdf", type=Path, help="The PDF that was used to build this index.")
-    web.add_argument("--port", type=int, default=8765)
+    web = sub.add_parser("web", help="Serve the FastAPI backend and bundled frontend.")
+    web.add_argument("pdf", type=Path, nargs="?", help="Defaults to PDF_PATH from .env.")
+    web.add_argument("--port", type=int, help="Override the port in BACKEND_BASE_URL.")
+    sub.add_parser("frontend", help="Serve the frontend separately at FRONTEND_BASE_URL.")
     for command in (load, ask, search, inspect, evaluate, web):
-        command.add_argument("--index", type=Path, default=DEFAULT_INDEX)
+        command.add_argument("--index", type=Path, default=Path(os.getenv("INDEX_PATH") or DEFAULT_INDEX))
     for command in (load, ask, search, inspect):
         command.add_argument("--json", action="store_true", help="Emit structured JSON.")
     return cli
@@ -55,13 +58,28 @@ def print_evidence(items):
         print(f"  {item.text}")
 
 
+def pdf_path(path: Path | None) -> Path:
+    if path is not None:
+        return path
+    configured = os.getenv("PDF_PATH")
+    if not configured:
+        raise ValueError("Set PDF_PATH in .env or pass the PDF path.")
+    return Path(configured)
+
+
 def run(args):
+    if args.command == "frontend":
+        from .web import serve_frontend
+
+        serve_frontend()
+        return
     if args.command == "ingest":
-        if args.pdf.resolve() == args.index.resolve():
+        pdf = pdf_path(args.pdf)
+        if pdf.resolve() == args.index.resolve():
             raise ValueError("Use separate paths for the input PDF and the index.")
         started = perf_counter()
-        client = None if args.local_only else OpenRouter.from_env()
-        document = ingest(args.pdf, client)
+        client = None if args.local_only else LLMProvider.from_env()
+        document = ingest(pdf, client)
         metadata = write_index(args.index, document, client)
         metadata["seconds"] = round(perf_counter() - started, 2)
         if client:
@@ -81,7 +99,7 @@ def run(args):
     if args.command == "web":
         from .web import serve
 
-        serve(args.pdf, index, args.port)
+        serve(pdf_path(args.pdf), index, args.port)
         return
     if args.command == "inspect":
         if args.id:
@@ -101,7 +119,7 @@ def run(args):
     if args.command == "search":
         vector = None
         if args.mode != "keyword":
-            client = OpenRouter.from_env()
+            client = LLMProvider.from_env()
             if client.embed_model != index.metadata["embedding_model"]:
                 raise ValueError("Hybrid search requires an index built with the configured embedding model.")
             vector = client.embed([args.query])[0]
@@ -117,7 +135,7 @@ def run(args):
             print_evidence(items)
         return
 
-    client = OpenRouter.from_env()
+    client = LLMProvider.from_env()
     if args.command == "evaluate":
         from .evaluation import evaluate
 
@@ -144,8 +162,9 @@ def run(args):
 
 def main():
     try:
+        load_dotenv()
         run(parser().parse_args())
-    except (OSError, ValueError, OpenRouterError, pymupdf.FileDataError, sqlite3.Error) as exc:
+    except (OSError, ValueError, ProviderError, pymupdf.FileDataError, sqlite3.Error) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         raise SystemExit(1) from None
     except KeyboardInterrupt:

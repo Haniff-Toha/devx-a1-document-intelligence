@@ -1,5 +1,7 @@
 "use strict";
 
+let apiOrigin = "";
+const apiUrl = (path) => apiOrigin + path;
 const byId = (id) => document.getElementById(id);
 const question = byId("question");
 const form = byId("question-form");
@@ -16,7 +18,6 @@ const previousPage = byId("previous-page");
 const nextPage = byId("next-page");
 const openPdf = byId("open-pdf");
 const showChat = byId("show-chat");
-const showSource = byId("show-source");
 const showReadme = byId("show-readme");
 const compact = matchMedia("(max-width: 52rem)");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -42,22 +43,19 @@ function element(tag, text, className) {
 }
 
 async function requestJson(url, options) {
-  const response = await fetch(url, options);
+  const response = await fetch(apiUrl(url), options);
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "The local server could not complete the request.");
   return data;
 }
 
-function selectView(view) {
-  const readme = view === "readme";
+function selectView(readme) {
   byId("chat-view").hidden = readme;
   byId("readme-view").hidden = !readme;
-  if (!readme) byId("chat-view").dataset.panel = view;
-  showChat.setAttribute("aria-pressed", String(view === "chat"));
-  showSource.setAttribute("aria-pressed", String(view === "source"));
+  showChat.setAttribute("aria-pressed", String(!readme));
   showReadme.setAttribute("aria-pressed", String(readme));
   const frame = byId("readme");
-  if (readme && !frame.hasAttribute("src")) frame.src = "/docs/README.md";
+  if (readme && !frame.hasAttribute("src")) frame.src = apiUrl("/docs/README.md");
 }
 
 function markCitation(button) {
@@ -74,7 +72,7 @@ async function showPage(number, citation) {
   previousPage.disabled = number === 1;
   nextPage.disabled = number === documentInfo.pages;
   openPdf.hidden = false;
-  openPdf.href = `/source.pdf#page=${number}`;
+  openPdf.href = apiUrl(`/source.pdf#page=${number}`);
   byId("citation-details").hidden = !citation;
   if (citation) {
     byId("citation-title").textContent = citation.label;
@@ -85,7 +83,7 @@ async function showPage(number, citation) {
   previewMessage.textContent = "Loading page preview…";
   previewMessage.hidden = false;
   pageImage.alt = `Page ${number} of ${documentInfo.name}`;
-  pageImage.src = `/api/pages/${number}`;
+  pageImage.src = apiUrl(`/api/pages/${number}`);
   try {
     await pageImage.decode();
   } catch {
@@ -120,13 +118,13 @@ function bindSource(button, cite) {
   button.title = cite.label;
   button.setAttribute("aria-label", `Page ${cite.page} · ${cite.label}`);
   button.setAttribute("aria-pressed", "false");
-  button.addEventListener("click", () => {
+  button.addEventListener("click", async () => {
     markCitation(button);
-    if (compact.matches) {
-      selectView("source");
+    await showPage(cite.page, cite);
+    if (compact.matches && activeButton === button) {
+      byId("evidence-panel").scrollIntoView({block: "start"});
       byId("evidence-heading").focus({preventScroll: true});
     }
-    showPage(cite.page, cite);
   });
 }
 
@@ -193,7 +191,7 @@ function addVisuals(message, visuals) {
     bindSource(button, visual.citation);
     const thumb = element("span", "", "visual-thumb");
     const img = element("img");
-    img.src = visual.image;
+    img.src = apiUrl(visual.image);
     img.alt = visual.title;
     img.loading = "lazy";
     thumb.append(img);
@@ -205,7 +203,7 @@ function addVisuals(message, visuals) {
 }
 
 async function* streamAnswer(text, signal) {
-  const response = await fetch("/api/ask/stream", {
+  const response = await fetch(apiUrl("/api/ask/stream"), {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({question: text}),
@@ -293,12 +291,8 @@ async function submit(event) {
   }
 }
 
-showChat.addEventListener("click", () => selectView("chat"));
-showSource.addEventListener("click", () => selectView("source"));
-showReadme.addEventListener("click", () => selectView("readme"));
-compact.addEventListener("change", () => {
-  if (!compact.matches && showSource.getAttribute("aria-pressed") === "true") selectView("chat");
-});
+showChat.addEventListener("click", () => selectView(false));
+showReadme.addEventListener("click", () => selectView(true));
 form.addEventListener("submit", submit);
 askButton.addEventListener("click", () => activeRequest?.abort());
 question.addEventListener("keydown", (event) => {
@@ -322,7 +316,10 @@ nextPage.addEventListener("click", () => {
   showPage(currentPage + 1);
 });
 
-requestJson("/api/document").then((data) => {
+requestJson("/config.json").then((config) => {
+  apiOrigin = config.apiBaseUrl;
+  return requestJson("/api/document");
+}).then((data) => {
   documentInfo = data;
   byId("document-name").textContent = data.name.replace(/\.pdf$/i, "").replaceAll("_", " ");
   askButton.disabled = false;

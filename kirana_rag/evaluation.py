@@ -8,7 +8,7 @@ from statistics import median
 from time import perf_counter
 
 from .agent import SEED_COUNT, Agent, seed_evidence
-from .openrouter import OpenRouter, OpenRouterError
+from .llm_provider import LLMProvider, ProviderError
 from .retrieval import Index
 
 
@@ -42,7 +42,7 @@ def result_score(case: dict, answer: dict) -> dict:
     return {"correct": correct, "citations_complete": complete, "grounded_correct": correct and complete}
 
 
-def evaluate(index: Index, client: OpenRouter, cases_path: Path, output: Path) -> dict:
+def evaluate(index: Index, client: LLMProvider, cases_path: Path, output: Path) -> dict:
     started = perf_counter()
     if output.resolve() == cases_path.resolve():
         raise ValueError("Use separate paths for evaluation questions and results.")
@@ -57,13 +57,14 @@ def evaluate(index: Index, client: OpenRouter, cases_path: Path, output: Path) -
         case, vector = entry
         started_question = perf_counter()
         question = case["question"]
-        case_client = OpenRouter(client.key, client.chat_model, client.embed_model)
+        case_client = LLMProvider(client.key, client.chat_model, client.embed_model, client.vision_model,
+                                  base_url=client.base_url, chat_options=client.chat_options)
         keyword = index.search(question, k=SEED_COUNT)
         hybrid, links = seed_evidence(index, question, vector)
         initial = hybrid + [item for item, _ in links]
         try:
             answer = Agent(index, case_client).answer(question, vector=vector)
-        except OpenRouterError as exc:
+        except ProviderError as exc:
             answer = {"status": "error", "reason": str(exc), "claims": [], "trace": [],
                       "evidence_ids": [item.id for item in initial]}
         stages = {

@@ -172,7 +172,7 @@
                 "id": "p003-004",
                 "page": 3,
                 "label": "Key Performance Indicators / Revenue",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   51.0,
                   107.5,
@@ -554,7 +554,7 @@
                 "id": "p003-008",
                 "page": 3,
                 "label": "Key Performance Indicators / Customer NPS",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   51.0,
                   107.5,
@@ -739,7 +739,7 @@
                 "id": "p005-011",
                 "page": 5,
                 "label": "Revenue by country, 2025 / Indonesia",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   127.6,
                   382.1,
@@ -913,7 +913,7 @@
                 "id": "p005-008",
                 "page": 5,
                 "label": "Revenue by quarter, 2025 / Q4 Revenue",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   85.0,
                   122.0,
@@ -1086,7 +1086,7 @@
                 "id": "p006-006",
                 "page": 6,
                 "label": "On-time delivery by month, 2025 / On-time delivery percentage by month",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   63.8,
                   122.0,
@@ -1268,7 +1268,7 @@
                 "id": "p007-021",
                 "page": 7,
                 "label": "Core line-haul network / Network connection",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   85.0,
                   221.0,
@@ -2091,7 +2091,7 @@
                 "id": "p009-020",
                 "page": 9,
                 "label": "Emissions intensity (grams CO2e per parcel delivered) / Emissions intensity 2025",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   99.2,
                   365.5,
@@ -2607,7 +2607,7 @@
                 "id": "p013-003",
                 "page": 13,
                 "label": "Appendix B: Standard Contract Tariff 2026 / Cold-chain pallet storage (2-8 C)",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   51.0,
                   57.0,
@@ -2625,7 +2625,7 @@
                 "id": "p013-009",
                 "page": 13,
                 "label": "Appendix B: Standard Contract Tariff 2026 / Note 1",
-                "method": "openrouter_vision",
+                "method": "vision",
                 "box": [
                   51.0,
                   57.0,

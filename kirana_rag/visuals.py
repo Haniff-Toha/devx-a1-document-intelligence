@@ -8,9 +8,10 @@ from .evidence import Evidence
 from .retrieval import tokens
 
 VISUAL_WORD = r"(?:charts?|graphs?|plots?|visuals?|figures?|diagrams?|infographics?|kpis?|scan(?:s|ned)?)"
+JOINED_VISUAL_WORD = re.compile(rf"\b(any|some|all|the)[_-]?(?={VISUAL_WORD}\b)", re.I)
 FIGURE_NUMBER = re.compile(r"\bfigure\s*(\d+)\b", re.I)
 DISPLAY_REQUEST = re.compile(
-    rf"^(?:(?:can|could|would) you |please )*(?:show|display|open|list|find|identify)\b"
+    rf"^(?:(?:can|could|would) you |please )*(?:show|display|open|list|find|identify|see)\b"
     rf"|^(?:is|are) there\b|^(?:does|do)\b.*\b(?:have|contain|include)\b"
     rf"|^(?:which|what) (?:(?:kinds?|types?) of )?{VISUAL_WORD}\b|^can i see\b"
     rf"|^(?:any )?{VISUAL_WORD}(?:\s+in\b|\s*\??$)",
@@ -59,7 +60,7 @@ def catalog(items: list[Evidence]) -> dict[str, Visual]:
             groups[item.group].append(item)
     visuals = {}
     for group, members in groups.items():
-        source = next((item for item in members if item.method == "openrouter_vision"
+        source = next((item for item in members if item.method == "vision"
                        and item.kind in {"figure", "scan"}), None)
         text = "\n".join(item.searchable for item in members)
         number = FIGURE_NUMBER.search(text)
@@ -78,11 +79,12 @@ def catalog(items: list[Evidence]) -> dict[str, Visual]:
 
 
 def mentions_visual(question: str) -> bool:
-    return bool(re.search(rf"\b{VISUAL_WORD}\b", question, re.I))
+    return bool(re.search(rf"\b{VISUAL_WORD}\b", JOINED_VISUAL_WORD.sub(r"\1 ", question), re.I))
 
 
 def requested_visuals(question: str, visuals: dict[str, Visual]) -> list[Visual] | None:
     """None means the question needs the agent. An empty list is a visual lookup miss."""
+    question = JOINED_VISUAL_WORD.sub(r"\1 ", question)
     if (not mentions_visual(question) or not DISPLAY_REQUEST.search(question)
             or ANALYSIS_REQUEST.search(question)):
         return None
